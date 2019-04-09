@@ -1,0 +1,61 @@
+.playerLetter {
+    border: 2px solid #F1E0CC;
+    border-radius: 5px;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    transform: scale(1.33);
+    position: relative;
+    margin: 15px;
+}
+
+.playerLetter:hover {
+    transform: scale(1.5);
+}
+
+.playedLetter {
+    border: 2px solid #F1E0CC;
+    border-radius: 5px;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    margin: -2px;
+}
+
+.playedLetter:hover {
+    transform: scale(1.1);
+}
+
+.letter {
+    position: relative;
+    color: white;
+    font-size: medium;
+
+    width: 15px;
+    height: 20px;
+    top: 7px;
+}
+
+.points {
+    position: relative;
+    color: white;
+    font-size: smaller;
+    top: -20px;
+    left: 15px;
+    width: 10px;
+    height: 10px;
+}
+
+.emptyLetterSlot {
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    width: 60px;
+    height: 60px;
+    position: relative;
+}
+
+.emptyLetterSlot:hover {
+    background-color: #4160a7;
+    border-radius: 5px;
+}

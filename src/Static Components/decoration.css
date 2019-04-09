@@ -1,0 +1,33 @@
+/*Start of row 1 - column 2: title section*/
+.title-box {
+    height: 120px;
+}
+
+.title {
+    font-size: 72px;
+    text-align: center;
+    color: #52A793;
+}
+
+.title-line {
+    border-style: solid;
+    border-color: #9D322F;
+    width: 200px;
+    height: 2px;
+    background-color: #9D322F;
+    border-radius: 5px;
+}
+/*End of row 1 - column 2: title section*/
+
+/*Start of row 2 - column 3: legend*/
+.legendRectangle {
+    background-color: #52A793;
+    width: 220px;
+    height: 320px;
+    border-radius: 10px;
+
+    position: relative;
+    left: 90px;
+    top: 20%;
+}
+/*End of row 2- column 3: legend*/

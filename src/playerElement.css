@@ -1,0 +1,40 @@
+/*Start of row 2 - column 1: points board*/
+.rectangle {
+    position: relative;
+    top: 35%;
+    left: 90px;
+
+    background-color: #562F24;
+    width: 220px;
+    height: 120px;
+    border-radius: 10px;
+}
+
+.innerRectangle {
+    position: relative;
+    top: 30%;
+    left: 15%;
+
+    background-color: #9D322F;
+    width: 70%;
+    height: 40%;
+
+    border-width: 2px;
+    border-color: #FACC7A;
+    border-style: solid;
+}
+/*End of row 2 - column 1: points board*/
+
+/*Start of row 3 - column 2: player letters section*/
+.playerLetters-grid {
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto auto;
+
+    background-color: #526AA7;
+
+    margin-top: 20px;
+    height: 60px;
+    border-radius: 5px;
+    border: 0px;
+}
+/*End of row 3 - column 2: player letters section*/
