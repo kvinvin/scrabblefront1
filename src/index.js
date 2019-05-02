@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
-import {SaveAndExit, GiveUp, Submit} from './Static Components/gameButtons.js'
-import {Title,Legend} from "./Static Components/decoration.js";
+import {GiveUp, SaveAndExit, Submit} from './Static Components/gameButtons.js'
+import {Legend, Title} from "./Static Components/decoration.js";
 import {Board} from "./gameBoard.js";
 import {PlayerInfo, PlayerLetters} from "./playerElements";
 import Letters from "./letterData";
@@ -11,16 +11,52 @@ import Letters from "./letterData";
 class Game extends React.Component {
     constructor (props) {
         super (props);
+
+        this.generateArrayFromObjects = this.generateArrayFromObjects.bind(this);
+        this.shuffle = this.shuffle.bind(this);
+
+        /*let reserveLetters = this.generateArrayFromObjects(Letters);
+        console.log("RL:" + reserveLetters);
+        let shuffledReserveLetters = this.shuffle(reserveLetters);
+        console.log("SRL: " + shuffledReserveLetters);
+        let firstSeven = shuffledReserveLetters.splice(0,7);*/
         this.state = {
             //letters player can play in current round
             playerLetters: [
-                Letters.l,
-                Letters.h,
-                Letters.o,
-                Letters.l,
-                Letters.k,
+                Letters.z,
+                Letters.y,
+                Letters.x,
+                Letters.w,
+                Letters.v,
+                Letters.u,
+                Letters.t],
+            reserveLetters: [
                 Letters.a,
-                Letters.e
+                Letters.b,
+                Letters.c,
+                Letters.d,
+                Letters.e,
+                Letters.f,
+                Letters.g,
+                Letters.h,
+                Letters.i,
+                Letters.j,
+                Letters.k,
+                Letters.l,
+                Letters.m,
+                Letters.n,
+                Letters.o,
+                Letters.p,
+                Letters.q,
+                Letters.r,
+                Letters.s,
+                Letters.t,
+                Letters.u,
+                Letters.v,
+                Letters.w,
+                Letters.x,
+                Letters.y,
+                Letters.z,
             ],
             /*letters placed on the game board.
             *   letter: letter value
@@ -38,11 +74,11 @@ class Game extends React.Component {
                 points: null, // the points of the selected letter
                 roundPlaced: null //the round the selected letter was placed in
             },
+            words: [],
             round: 1,
-            //TODO: need state that represents the words
             //a list of possible locations where a letter can be placed. Is saved as state to avoid recalculating again
-            possibleLocations: [112]
-
+            possibleLocations: [112],
+            score: 0
         };
         //only bind the functions that get passed on as props
         this.changeSelectedLetter = this.changeSelectedLetter.bind(this);
@@ -51,6 +87,31 @@ class Game extends React.Component {
         this.handleSubmitClick = this.handleSubmitClick.bind(this);
     }
 
+    generateArrayFromObjects (objectList) {
+        const letters = [];
+        Object.keys(objectList).forEach(key => {
+            const frequency = objectList[key].frequency;
+            let letter = {
+                letter: objectList[key].letter,
+                points: objectList[key].points
+            }
+            for(let i = 0; i < frequency; i++){
+                letters.push(letter)
+            }
+        });
+        return letters;
+    };
+
+    async shuffle (set) {
+        const arraySize = set.length;
+        for (let i = arraySize; i > 0; i-- ) {
+            const r = Math.floor(Math.random() * arraySize);
+            let temp = set[arraySize - 1];
+            set[arraySize - 1] = set[r]; //places random var at end of array
+            set[r] = temp;
+        }
+        return set
+    };
 
     //updates selectedLetter to the new selected letter
     changeSelectedLetter (newLetter) {
@@ -91,11 +152,10 @@ class Game extends React.Component {
     removeSelectedLetterFromPlayerDock () {
         const location = this.state.selectedLetter.location;
         let tmp = this.state.playerLetters.slice();
-        const emptyLetter = {
+        tmp[location] = {
             "letter": null,
             "points": null
         };
-        tmp[location] = emptyLetter;
         this.setState({playerLetters: tmp})
     }
 
@@ -243,10 +303,8 @@ class Game extends React.Component {
         console.log("Checking if all letters are in contact with each other");
 
         let possibleLocations = this.state.possibleLocations;
-        let newLocations = [];
-        for (let i = 0; i < newLetters.length; i++) {
-            newLocations.push(newLetters[i].location);
-        }
+        let newLocations = newLetters.map(letter => letter.location);
+
         console.log("Possible locations from before: " + possibleLocations);
         console.log("New locations to be checked: " + newLocations);
         //i is used as an index marker to know which index in the array to compare
@@ -298,6 +356,91 @@ class Game extends React.Component {
         return true;
     }
 
+    extractWord(letter, newLetters, direction) {
+        let searchMore = true;
+        let neighbors = [];
+        let location = letter.location;
+        let x = 0;
+        switch (direction) {
+            case "up":
+                x = -15;
+                break;
+            case "down":
+                x = 15;
+                break;
+            case "left":
+                x = -1;
+                break;
+            case "right":
+                x = 1;
+                break;
+            default:
+                return;
+        }
+
+        while (searchMore) {
+            let tmp = this.state.placedLetters.filter(
+                placedLetter => (placedLetter.location === (location + x)));
+            if (tmp.length > 0) {
+                console.log("Tmp1: " + tmp[0].letter);
+                neighbors.push(tmp[0]);
+                location = location + x;
+            }
+            else {
+                tmp = newLetters.filter(newLetter => (newLetter.location === (location + x)));
+                if (tmp.length > 0) {
+                    console.log("Tmp2: " + tmp[0].letter);
+                    neighbors.push(tmp[0]);
+                    location = location + x;
+                }
+                else {
+                    console.log("Neighbors:" + neighbors);
+                    return neighbors;
+                }
+            }
+
+        }
+    }
+
+    //returns true if the word exists, false if it is not a word
+    analyzeWord(word) {
+        let wordInLetters = word.map(placedLetter => placedLetter.letter);
+        //Dictionary.hasOwnProperty(wordInLetters)
+    }
+
+    static calculateScore(word) {
+        let score = 0;
+        let wordMultiplier = 1;
+        for (let i = 0; i < word.length; i++) {
+            let letterMultiplier = 1;
+            switch(word[i].multiplier){
+                case "w2": wordMultiplier = wordMultiplier * 2; break;
+                case "w3": wordMultiplier = wordMultiplier * 3; break;
+                case "l2": letterMultiplier = letterMultiplier * 2; break;
+                case "l3": letterMultiplier = letterMultiplier *3; break;
+            }
+            //adds the score of the current letter with a letterMultiplier to the total word score
+            score = score + (word[i].points * letterMultiplier);
+        }
+        return (score * wordMultiplier);
+    }
+
+    refillPlayerLetters(){
+        let reserveLetters = this.state.reserveLetters;
+        const oldPlayerLetters = this.state.playerLetters;
+        console.log("leftOvers: " + oldPlayerLetters);
+        const newPlayerLetters = oldPlayerLetters.map(letter => {
+            if(letter.letter === null) {
+                return (reserveLetters.splice(0,1))[0];
+            }
+            return letter
+        });
+        this.setState({
+            reserveLetters: reserveLetters,
+            playerLetters: newPlayerLetters
+        })
+    }
+
     //makes sure that the letters placed fit all the right requirements before moving on to the next round
     handleSubmitClick () {
         //save initial values of state
@@ -312,10 +455,14 @@ class Game extends React.Component {
             return;
         }
 
+        if (newLetters.length === 1 && round === 1) {
+            alert("You need to place at least 2 letters in the first round");
+            return;
+        }
         //check that center tile is not empty when first round is being ended
         let isSetInMiddle = Game.isSetInMiddle(newLetters);
         if (round === 1 && !isSetInMiddle){
-            alert("To be able to end the first round, you need to place a letter on the center tile!");
+            alert("To be able to end the first round, you need to place a letter on the center tile");
             return;
         }
 
@@ -332,10 +479,52 @@ class Game extends React.Component {
         if (!areLettersConnected) {
             alert("A letter is not in contact with the rest of the letters!")
         }
+
+        newLetters.sort((a,b) => {
+            return a.location - b.location
+        });
+        let lettersOnly = newLetters.map(l => l.letter);
+        //lettersOnly contains all the new letters placed in order
+        console.log("New Word: " + lettersOnly);
+
+        //Array that collects all created words
+        let words = [];
+
+        for (let  i = 0; i < newLetters.length; i++) {
+            let verticalWord = (
+                [newLetters[i]]
+                    .concat(this.extractWord(newLetters[i], newLetters, "up")))
+                .concat(this.extractWord(newLetters[i], newLetters, "down"));
+            verticalWord.sort((a, b) => {
+                return a.location - b.location
+            });
+            if (verticalWord.length > 1){
+                words.push(verticalWord);
+            }
+
+            let horizontalWord = (
+                [newLetters[i]]
+                    .concat(this.extractWord(newLetters[i], newLetters, "left")))
+                .concat(this.extractWord(newLetters[i], newLetters, "right"));
+            horizontalWord.sort((a, b) => {
+                return a.location - b.location
+            });
+            if (horizontalWord.length > 1){
+                words.push(horizontalWord);
+            }
+        }
+        let score = this.state.score;
+        score = score + Game.calculateScore(words[0]);
+
+        this.setState({words: words});
+        this.setState({score: score});
+
         if ((round > 1 || (round === 1 && isSetInMiddle)) && areLettersConnected) {
             round++;
         }
         this.setState({round: round});
+
+        this.refillPlayerLetters();
     }
 
     render() {
@@ -344,7 +533,7 @@ class Game extends React.Component {
                 <SaveAndExit/>
                 <Title/>
                 <GiveUp/>
-                <PlayerInfo/>
+                <PlayerInfo score = {this.state.score}/>
                 <Board
                     selectedLetter = {this.state.selectedLetter}
                     placedLetters = {this.state.placedLetters}
@@ -368,21 +557,36 @@ class Game extends React.Component {
     }
 }
 
+/*
+let shuffledReserveLetters = this.generateArrayFromObjects(Letters).then(value => this.shuffle(value));
+console.log("SRL: " + shuffledReserveLetters);
+let firstSeven = shuffledReserveLetters.splice(0,7);
+*/
 ReactDOM.render(
-    <Game/>,
+    <Game
+        /*playerLetters = {firstSeven}
+        reservedLetters = {shuffledReserveLetters}*/
+    />,
     document.getElementById('root')
 );
 
 
 /*
 * TODO:
-*  1.   add constrictions on finish button
-*           c. words formed need to be proper words
-*   2.  calculate score formed out of new words
-*   3.  increment scoreboard with new score
-*   4.! complete legend info table
-*   5.  when a new round is started, generate a new list of letters which get assigned to players
-*   6.  to achieve 5, generate a list of shuffled letters from letterData and save it in state. Pop * letters at a time
+*   1.! add constrictions on finish button
+*           a. words formed need to be proper words
+*               - to do this:
+*                   1. extract words ALMOST DONE
+*                   2. analyze words
+*   2.  to achieve 5, generate a list of shuffled letters from letterData and save it in state.
+*   3.  if round 1, you need to place at least 2 letters
+*   4.  when a round is successfully ended, add a 10-second page showing how the score gets calculated
+*           - darker background
+*           - each tile in large (word and score)
+*           - multiplier written below a letter if a letter multiplier
+*           - multiplier written next to final score if word multiplier
+*   5. ERRORS:
+*       a. error when no more reserves are present to replace the played letters
 *
 *
 * TODO DONE:
@@ -394,4 +598,11 @@ ReactDOM.render(
 *       c. are letters placed in a straight line
 *       d. every rounds words need to be in contact with main placedLetters graph
 *   4. a letter placed in a previous round cannot be selected
+*   5. calculate score formed out of new words
+*   6. increment scoreboard with new score
+*   7. complete legend info table
+*   8. when a new round is started, replace empty player letter slots with new letters from reserve
+*
+* TODO ERRORS DONE:
+*   1. error when placing only 1 letter at the start of the game
 * */

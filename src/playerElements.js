@@ -48,12 +48,16 @@ export class PlayerLetters extends React.Component {
 }
 
 export class PlayerInfo extends React.Component {
+    constructor(props){
+        super(props);
+    }
+
     render() {
         return (
             <div className="rectangle">
                 <div className="innerRectangle">
                     <div className="textStyle" style={{top: "5px"}}>kvinvin</div>
-                    <div className="textStyle" style={{top: "8px"}}>0</div>
+                    <div className="textStyle" style={{top: "8px"}}>{this.props.score}</div>
                 </div>
             </div>
         )

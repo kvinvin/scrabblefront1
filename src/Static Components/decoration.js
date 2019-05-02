@@ -16,7 +16,23 @@ export class Legend extends React.Component {
     render() {
         return (
             <div className="legendRectangle">
-                <div className="textStyle" style={{top: "8px"}}>Legend</div>
+                <div className="textStyle" style={{top: "8px", height: "55px"}}>Legend</div>
+                <div className="tileInformation">
+                    <div className="square" style={{backgroundColor: "#FACC7A"}}/>
+                    <div className="textStyle" style={{top: "6px", textAlign: "left"}}>Double Letter</div>
+                </div>
+                <div className="tileInformation">
+                    <div className="square" style={{backgroundColor: "#526AA7"}}/>
+                    <div className="textStyle" style={{top: "6px", textAlign: "left"}}>Triple Letter</div>
+                </div>
+                <div className="tileInformation">
+                    <div className="square" style={{backgroundColor: "#AF805E"}}/>
+                    <div className="textStyle" style={{top: "6px", textAlign: "left"}}>Double Word</div>
+                </div>
+                <div className="tileInformation">
+                    <div className="square" style={{backgroundColor: "#9D322F"}}/>
+                    <div className="textStyle" style={{top: "6px", textAlign: "left"}}>Triple Word</div>
+                </div>
             </div>
         )
     }
