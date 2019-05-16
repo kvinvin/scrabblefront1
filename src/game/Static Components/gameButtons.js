@@ -4,7 +4,7 @@ import './gameButtons.css'
 export class SaveAndExit extends React.Component {
     render() {
         return (
-            <button className="button">
+            <button className="button" onClick={this.props.handleSaveAndExit}>
                 <div className="arrow">
                     <div className="arrowHead"/>
                     <div className="arrowLine"/>

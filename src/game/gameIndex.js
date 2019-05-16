@@ -5,6 +5,9 @@ import {Legend, Title} from "./Static Components/decoration.js";
 import {Board} from "./gameBoard.js";
 import {PlayerInfo, PlayerLetters} from "./playerElements";
 import Letters from "./letterData";
+//import {analyzeWord} from './analyzeWord';
+import {validateAllRequirementsExceptWordValidation, collectWords, analyzeWords, calculateScore, updateRound} from "./handleSubmitClick";
+
 
 /*Game contains as state all the game-wide data to be saved*/
 export class Game extends React.Component {
@@ -237,200 +240,6 @@ export class Game extends React.Component {
         this.changeSelectedLetter(emptyLetter);
     }
 
-
-    //checks that letters are on center piece during round 1
-    static isSetInMiddle(newLetters) {
-        let isSetInMiddle = false;
-        for (let i = 0; i < newLetters.length; i++) {
-            if(newLetters[i].location === 112) {
-                isSetInMiddle = true;
-            }
-        }
-        return isSetInMiddle;
-    }
-
-    static areLettersOnStraightLine (newLetters) {
-        if (newLetters.length === 1) return true;
-
-        //states if further checks should go along the horizontal or vertical
-        let direction = Game.detectDirection(newLetters);
-
-        //first letter coordinates
-        const firstLocation = newLetters[0].location;
-        const x1 = Math.floor(firstLocation / 15);
-        const y1 = firstLocation % 15;
-
-        for (let i = 2; i < newLetters.length; i++) {
-            let location = newLetters[i].location;
-            //calculates only horizontal values
-            if (direction === "horizontal"){
-                let xNew = Math.floor(location / 15);
-                if (xNew !== x1) return false;
-            }
-            else {
-                //otherwise calculates only vertical values
-                let yNew = location % 15;
-                if (yNew !== y1) return false;
-            }
-        }
-        return true;
-    }
-
-    /*make sure all letters are in contact with each other.
-    * Previous functions have already checked that
-    *   - the center tile is used
-    *   - that the letters are on a straight line
-    */
-    areLettersConnected (newLetters) {
-        console.log("Checking if all letters are in contact with each other");
-
-        let possibleLocations = this.state.possibleLocations;
-        let newLocations = newLetters.map(letter => letter.location);
-
-        console.log("Possible locations from before: " + possibleLocations);
-        console.log("New locations to be checked: " + newLocations);
-        //i is used as an index marker to know which index in the array to compare
-        let i = newLocations.length - 1;
-        let logger = 0;
-        //as long as letters are in the newLocations array, continue
-        while (newLocations.length > 0 && logger < 100) {
-            console.log("Run: " + logger);
-            console.log("i: " + i);
-            //to check if a letter is connected to the main graph
-            if ((i >= 0) && possibleLocations.includes(newLocations[i])) {
-                console.log("It fit on " + i + " with location " + newLocations[i]);
-                //if it is, remove that letter
-                let connectedLocation = Number(newLocations.splice(i, 1));
-
-                //and add its neighbours to the possibleLocations array
-                let newPossibleLocations = [
-                    connectedLocation - 15,
-                    connectedLocation + 15,
-                    connectedLocation - 1,
-                    connectedLocation + 1
-                ];
-
-                console.log(logger + ": Possible locations: " + newPossibleLocations);
-                possibleLocations = possibleLocations.concat(newPossibleLocations);
-
-                //remove duplicates
-                possibleLocations = Array.from(new Set(possibleLocations));
-
-                //now the letter was removed and the possible letters were added to the list, start while loop again
-                //by checking from the end again
-                i = newLocations.length;
-
-                console.log(logger + ": Possible locations from before: " + possibleLocations);
-                console.log(logger + ": New locations to be checked: " + newLocations);
-            }
-            else {
-                //check one index lower of the newLocations
-                console.log("Does not fit on index " + i);
-                i--;
-                if (i < 0 ) {
-                    return false;
-                }
-
-            }
-            logger++;
-        }
-        this.setState({possibleLocations: possibleLocations});
-        return true;
-    }
-
-    static detectDirection(newLetters) {
-        //first letter coordinates
-        const firstLocation = newLetters[0].location;
-        const x1 = Math.floor(firstLocation / 15);
-        const y1 = firstLocation % 15;
-
-        //second letter coordinates
-        const secondLocation = newLetters[1].location;
-        const x2 = Math.floor(secondLocation / 15);
-        const y2 = secondLocation % 15;
-
-        //compare to see if further checks need to continue horizontal or vertical
-        if (x1 === x2) {
-            return "horizontal";
-        }
-        else if (y1 === y2) {
-            return "vertical";
-        }
-        else {
-            //since neither was true for the first 2 letters, return false since letters are not on a straight line
-            return null;
-        }
-    }
-
-    extractWord(letter, newLetters, direction) {
-        let searchMore = true;
-        let neighbors = [];
-        let location = letter.location;
-        let x = 0;
-        switch (direction) {
-            case "up":
-                x = -15;
-                break;
-            case "down":
-                x = 15;
-                break;
-            case "left":
-                x = -1;
-                break;
-            case "right":
-                x = 1;
-                break;
-            default:
-                return;
-        }
-
-        while (searchMore) {
-            let tmp = this.state.placedLetters.filter(
-                placedLetter => (placedLetter.location === (location + x)));
-            if (tmp.length > 0) {
-                console.log("Tmp1: " + tmp[0].letter);
-                neighbors.push(tmp[0]);
-                location = location + x;
-            }
-            else {
-                tmp = newLetters.filter(newLetter => (newLetter.location === (location + x)));
-                if (tmp.length > 0) {
-                    console.log("Tmp2: " + tmp[0].letter);
-                    neighbors.push(tmp[0]);
-                    location = location + x;
-                }
-                else {
-                    console.log("Neighbors:" + neighbors);
-                    return neighbors;
-                }
-            }
-
-        }
-    }
-
-    //returns true if the word exists, false if it is not a word
-    analyzeWord(word) {
-        let wordInLetters = word.map(placedLetter => placedLetter.letter);
-        //Dictionary.hasOwnProperty(wordInLetters)
-    }
-
-    static calculateScore(word) {
-        let score = 0;
-        let wordMultiplier = 1;
-        for (let i = 0; i < word.length; i++) {
-            let letterMultiplier = 1;
-            switch(word[i].multiplier){
-                case "w2": wordMultiplier = wordMultiplier * 2; break;
-                case "w3": wordMultiplier = wordMultiplier * 3; break;
-                case "l2": letterMultiplier = letterMultiplier * 2; break;
-                case "l3": letterMultiplier = letterMultiplier *3; break;
-            }
-            //adds the score of the current letter with a letterMultiplier to the total word score
-            score = score + (word[i].points * letterMultiplier);
-        }
-        return (score * wordMultiplier);
-    }
-
     refillPlayerLetters(){
         let reserveLetters = this.state.reserveLetters;
         const oldPlayerLetters = this.state.playerLetters;
@@ -447,113 +256,58 @@ export class Game extends React.Component {
         })
     }
 
+
+    //TODO: seperate submitClick function so that it calls on another validation function, and if it returns ok then
+    // complete necessary steps. This is currently not a pure function
     //makes sure that the letters placed fit all the right requirements before moving on to the next round
-    handleSubmitClick () {
+    async handleSubmitClick () {
         //save initial values of state
-        let round = this.state.round;
-        let placedLetters = this.state.placedLetters;
-        let newLetters = placedLetters.filter(letter => letter.roundPlaced === round);
+        const round = this.state.round;
+        const placedLetters = this.state.placedLetters;
+        const score = this.state.score;
+        const newLetters = placedLetters.filter(letter => letter.roundPlaced === round);
+        const possibleLocations = this.state.possibleLocations;
 
 
-        //in case no letters were added, alert player
-        if (newLetters.length === 0){
-            alert("You need to place some letters on the board before ending the round :)");
-            return;
-        }
+        let words = this.state.words;
+        let validatedAllWords = false;
+        validateAllRequirementsExceptWordValidation(newLetters, round, possibleLocations)
+            .then( async (values) => {
+                console.log("got into validation process");
+                //Array that collects all created words
+                //words = await collectWords(newLetters, placedLetters); //PAY ATTENTION HERE IS MISTAKE
+                await collectWords(newLetters, placedLetters)
+                    .then( async (newWords) => {
+                        console.log ("Big word length: " + newWords.length);
+                        validatedAllWords = analyzeWords(newWords);
+                        const newScore = await calculateScore(newWords, score);
+                        console.log("NeWWWWW: " + newScore);
+                        this.setState({score: newScore});
+                        words.push(newWords);
+                        this.setState({words: words});
+                    });
 
-        if (newLetters.length === 1 && round === 1) {
-            alert("You need to place at least 2 letters in the first round");
-            return;
-        }
-        //check that center tile is not empty when first round is being ended
-        let isSetInMiddle = Game.isSetInMiddle(newLetters);
-        if (round === 1 && !isSetInMiddle){
-            alert("To be able to end the first round, you need to place a letter on the center tile");
-            return;
-        }
+                this.setState({possibleLocations: values[4]});
 
-        //check that all elements are on a straight line
-        let lettersAreOnStraightLine = Game.areLettersOnStraightLine (newLetters);
-        if (!lettersAreOnStraightLine) {
-            alert("All letters placed in this round need to be placed on the same line");
-            return;
-        }
+                const newRound = updateRound(round);
+                this.setState({round: newRound});
 
-        //TODO: error since calculation takes too long
-        //check that the new letters are in contact with the old letters through some line
-        let areLettersConnected = this.areLettersConnected(newLetters);
-        console.log("Are letters connected:" + areLettersConnected);
-        if (!areLettersConnected) {
-            alert("A letter is not in contact with the rest of the letters!")
-        }
+                this.refillPlayerLetters();
+            })
+            .catch((e) => {throw alert(e)});
 
-        newLetters.sort((a,b) => {
-            return a.location - b.location
-        });
-        let lettersOnly = newLetters.map(l => l.letter);
-        //lettersOnly contains all the new letters placed in order
-        console.log("New Word: " + lettersOnly);
-
-        //Array that collects all created words
-        let words = [];
-
-        let direction = "point";
-        if (newLetters.length > 1) {
-            direction = Game.detectDirection(newLetters);
-        }
-
-        for (let  i = 0; i < newLetters.length; i++) {
-            if (direction !== "vertical" || i === 0) {
-                let verticalWord = (
-                    [newLetters[i]].concat(this.extractWord(newLetters[i], newLetters, "up"))
-                ).concat(this.extractWord(newLetters[i], newLetters, "down"));
-
-                verticalWord.sort((a, b) => {
-                    return a.location - b.location
-                });
-
-                if (verticalWord.length > 1){
-                    words.push(verticalWord);
-                }
-            }
-
-            if (direction !== "horizontal" || i === 0) {
-                let horizontalWord = (
-                    [newLetters[i]].concat(this.extractWord(newLetters[i], newLetters, "left"))
-                ).concat(this.extractWord(newLetters[i], newLetters, "right"));
-
-                horizontalWord.sort((a, b) => {
-                    return a.location - b.location
-                });
-
-                if (horizontalWord.length > 1){
-                    words.push(horizontalWord);
-                }
-            }
-        }
-        let score = this.state.score;
-        words.map(word =>
-            score = score + Game.calculateScore(word)
-        );
-
-        this.setState({words: words});
-        this.setState({score: score});
-
-        if ((round > 1 || (round === 1 && isSetInMiddle)) && areLettersConnected) {
-            round++;
-        }
-        this.setState({round: round});
-
-        this.refillPlayerLetters();
     }
 
     render() {
         return(
             <div className="game">
-                <SaveAndExit/>
-                <Title/>
+                <SaveAndExit handleSaveAndExit = {this.props.handleSaveAndExit}/>
+                <Title gameName = {this.props.gameName}/>
                 <GiveUp/>
-                <PlayerInfo score = {this.state.score}/>
+                <PlayerInfo
+                    score = {this.state.score}
+                    username= {this.props.username}
+                />
                 <Board
                     selectedLetter = {this.state.selectedLetter}
                     placedLetters = {this.state.placedLetters}
@@ -576,3 +330,49 @@ export class Game extends React.Component {
         )
     }
 }
+
+
+/*
+* TODO:
+*   1. LOGIC
+    *       a. add constrictions on finish button
+    *           - words formed need to be proper words
+    *               1. extract words DONE
+    *               2. analyze words
+    *       b.  generate a list of shuffled letters from letterData and save it in state.
+    *       c. detect (after submit is pressed) when no more letters are present in player letters and reserve letters and show
+    *           - the score
+    *           - its placement in the high score list
+    *           - BUTTON: return to home
+    *           - BUTTON: play again
+*   2. DESIGN
+    *       a. when a round is successfully ended, add a 5-10 second page showing how the score gets calculated
+    *           - darker background
+    *           - each tile in large (word and score)
+    *           - multiplier written below a letter if a letter multiplier
+    *           - multiplier written next to final score if word multiplier
+    *       b. give letters that are placed but not submitted yet a grey tone to show that they can still be moved
+    *       c. add conditional that letters from previous rounds do not scale while mouseOver
+*   3. ERRORS
+*
+*
+* TODO DONE:
+*   1. move letter from board to player dock (only if it was placed in the same round)
+*   2. move placedLetter state to Game component
+*   3. add constrictions on finish button
+*       a. starting letter of round 1 needs to be in middle tile
+*       b. are any letters placed on board
+*       c. are letters placed in a straight line
+*       d. every rounds words need to be in contact with main placedLetters graph
+*   4. a letter placed in a previous round cannot be selected
+*   5. calculate score formed out of new words
+*   6. increment scoreboard with new score
+*   7. complete legend info table
+*   8. when a new round is started, replace empty player letter slots with new letters from reserve
+*   9. if round 1, you need to place at least 2 letters
+*
+* TODO ERRORS DONE:
+*   1. error when placing only 1 letter at the start of the game
+*   2. error when no more reserves are present to replace the played letters
+*   3. promises take time to finish, error with non-connected letters: letters refill
+* */

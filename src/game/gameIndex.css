@@ -5,9 +5,12 @@ body {
 }
 
 .game {
+    width: 100%;
+    height: 100%;
+    background-color: #F1E0CC;
     display: grid;
     grid-template-columns: 400px 435px 400px;
-    font-family: "Helvetica"
+    font-family: "Helvetica";
 }
 
 .round {

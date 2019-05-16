@@ -4,9 +4,9 @@ import './decoration.css'
 export class Title extends React.Component {
     render() {
         return (
-            <div className="title-box">
-                <div className="title">PARIS</div>
-                <hr className="title-line"/>
+            <div className="titleBox">
+                <div className="title">{this.props.gameName}</div>
+                <hr className="titleLine"/>
             </div>
         )
     }

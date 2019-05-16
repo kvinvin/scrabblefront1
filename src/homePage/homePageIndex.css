@@ -1,0 +1,19 @@
+* {
+    box-sizing: border-box;
+}
+
+.homePage {
+    display: grid;
+    grid-template-columns: 33% 33% 33%;
+    font-family: "Helvetica"
+}
+
+/**
+TODO:
+    1. group title component into one size
+    2. make form nicer
+    3. Design search game with drop down list
+    4. create high score list
+    5. falling letters animation
+
+ */

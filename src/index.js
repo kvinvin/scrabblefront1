@@ -1,55 +1,119 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import {Game} from "./game/gameIndex.js";
+import {HomePage} from "./homePage/homePageIndex.js";
+
+/*
+function scrabble () {
+    const [status, setStatus] = useState("homePage");
+    const [username, setUsername] = useState("");
+    const [gameName, setGameName] = useState("");
+
+    let componentUI = null;
+
+    if (status === "homePage") {
+        componentUI = homePage(
+            username,
+            gameName,
+            setUsername,
+            setGameName,
+            setStatus
+            );
+    }
+    else if (status === "game") {
+        componentUI = <Game
+            username = {username}
+            gameName = {gameName}
+            handleSaveAndExit = {setStatus("homePage")}
+        />;
+    }
+    else {
+        componentUI = Error("404: Page not found");
+    }
+    return <div/>;
+}*/
+
+class Scrabble extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            status: "homePage", //homePage or game
+            username: "",
+            gameName: "",
+        };
+        this.handleStartGame = this.handleStartGame.bind(this);
+        this.handleUsernameChange = this.handleUsernameChange.bind(this);
+        this.handleGameNameChange = this.handleGameNameChange.bind(this);
+        this.handleSaveAndExit = this.handleSaveAndExit.bind(this);
+    }
+
+    handleUsernameChange(event) {
+        this.setState({username: event.target.value});
+    }
+
+    handleGameNameChange(event) {
+        this.setState({gameName: event.target.value});
+    }
+
+    //check if all conditions are met and start a new game
+    handleStartGame() {
+        if (this.state.username !== "" && this.state.gameName !== "") {
+           this.setState({status: "game"})
+        }
+        else{
+            alert("username or game name field is empty")
+        }
+    }
+
+    handleSaveAndExit() {
+        this.setState({status: "homePage"});
+    }
+
+    homePageOrGame() {
+        const status = this.state.status;
+
+        if (status === "homePage") {
+            return <HomePage
+                handleUsernameChange = {this.handleUsernameChange}
+                handleGameNameChange = {this.handleGameNameChange}
+                handleStartGame = {this.handleStartGame}
+                username = {this.state.username}
+                gameName = {this.state.gameName}
+            />
+        }
+        else if (status === "game") {
+            return <Game
+                username = {this.state.username}
+                gameName = {this.state.gameName}
+                handleSaveAndExit = {this.handleSaveAndExit}
+            />
+        }
+        else {
+            throw Error("404: Page not found")
+        }
+    }
+
+    render() {
+        return this.homePageOrGame()
+    }
+}
+
 
 ReactDOM.render(
-    <Game/>,
+    <Scrabble/>,
     document.getElementById('root')
 );
 
 
 /*
-* TODO:
-*   1. LOGIC
-    *       a. add constrictions on finish button
-    *           - words formed need to be proper words
-    *               1. extract words DONE
-    *               2. analyze words
-    *       b.  generate a list of shuffled letters from letterData and save it in state.
-    *       c. detect (after submit is pressed) when no more letters are present in player letters and reserve letters and show
-    *           - the score
-    *           - its placement in the high score list
-    *           - BUTTON: return to home
-    *           - BUTTON: play again
-*   2. DESIGN
-    *       a. when a round is successfully ended, add a 10-second page showing how the score gets calculated
-    *           - darker background
-    *           - each tile in large (word and score)
-    *           - multiplier written below a letter if a letter multiplier
-    *           - multiplier written next to final score if word multiplier
-    *       b. give letters that are placed but not submitted yet a grey tone to show that they can still be moved
-    *       c. add conditional that letters from previous rounds do not scale while mouseOver
-*   3. ERRORS
-    *       a. promises take time to finish, error with non-connected letters: letters refill
-*
-*
-* TODO DONE:
-*   1. move letter from board to player dock (only if it was placed in the same round)
-*   2. move placedLetter state to Game component
-*   3. add constrictions on finish button
-*       a. starting letter of round 1 needs to be in middle tile
-*       b. are any letters placed on board
-*       c. are letters placed in a straight line
-*       d. every rounds words need to be in contact with main placedLetters graph
-*   4. a letter placed in a previous round cannot be selected
-*   5. calculate score formed out of new words
-*   6. increment scoreboard with new score
-*   7. complete legend info table
-*   8. when a new round is started, replace empty player letter slots with new letters from reserve
-*   9. if round 1, you need to place at least 2 letters
-*
-* TODO ERRORS DONE:
-*   1. error when placing only 1 letter at the start of the game
-*   2. error when no more reserves are present to replace the played letters
-* */
+TODO:
+    1. finish to do-list in gameIndex
+    2. design home page
+    3. add functionality to home page buttons and forms
+    4. connect to server so that:
+        a. words can be verified
+        b. games can be saved when save button is pressed
+        c. username info can be cross referenced to save a new user or save new info to present user
+        d. update user info when give up or game is completed
+ */

@@ -1,6 +1,7 @@
 /*Start of row 1 - column 2: title section*/
-.title-box {
+.titleBox {
     height: 120px;
+    padding-top: 3%;
 }
 
 .title {
@@ -9,7 +10,7 @@
     color: #52A793;
 }
 
-.title-line {
+.titleLine {
     border-style: solid;
     border-color: #9D322F;
     width: 200px;

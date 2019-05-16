@@ -1,0 +1,9 @@
+.fallingLetters span {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    margin: -280px 60px 54px -34px;
+
+    -webkit-animation: fallingSnow 12s infinite linear;
+    -moz-animation: fallingSnow 12s infinite linear;
+}
