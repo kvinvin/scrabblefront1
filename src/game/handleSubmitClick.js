@@ -60,21 +60,21 @@ const areLettersOnStraightLine = async (newLetters) => {
 *   - that the letters are on a straight line
 */
 const areLettersConnected = async (newLetters, possibleLocations) => {
-
     let newLocations = newLetters.map(letter => letter.location);
-
     //i is used as an index marker to know which index in the array to compare
     let i = newLocations.length - 1;
-    let logger = 0;
+    let connectedLocation;
+    let newPossibleLocations = [];
+
     //as long as letters are in the newLocations array, continue
-    while (newLocations.length > 0 && logger < 100) {
+    while (newLocations.length > 0) {
         //to check if a letter is connected to the main graph
         if ((i >= 0) && possibleLocations.includes(newLocations[i])) {
             //if it is, remove that letter
-            let connectedLocation = Number(newLocations.splice(i, 1));
+            connectedLocation = Number(newLocations.splice(i, 1));
 
             //and add its neighbours to the possibleLocations array
-            let newPossibleLocations = [
+            newPossibleLocations = [
                 connectedLocation - 15,
                 connectedLocation + 15,
                 connectedLocation - 1,
@@ -94,14 +94,13 @@ const areLettersConnected = async (newLetters, possibleLocations) => {
             //check one index lower of the newLocations
             i--;
             if (i < 0 ) {
-                throw ("A letter is not in contact with the rest of the letters!");
+                throw String("A letter is not in contact with the rest of the letters!");
             }
-
         }
-        logger++;
     }
     return possibleLocations;
 };
+
 /*
 const sortNewLetters = (newLetters) => {
     newLetters.sort((a,b) => {
@@ -142,6 +141,7 @@ const extractWord = async (letter, placedLetters, newLetters, direction) => {
     let neighbors = [];
     let location = letter.location;
     let x = 0;
+
     switch (direction) {
         case "up":
             x = -15;
@@ -182,8 +182,10 @@ const extractWord = async (letter, placedLetters, newLetters, direction) => {
 const calculateIndividualWordScore = async (word) => {
     let score = 0;
     let wordMultiplier = 1;
+
     for (let i = 0; i < word.length; i++) {
         let letterMultiplier = 1;
+
         switch(word[i].multiplier){
             case "w2": wordMultiplier = wordMultiplier * 2; break;
             case "w3": wordMultiplier = wordMultiplier * 3; break;
@@ -194,15 +196,16 @@ const calculateIndividualWordScore = async (word) => {
         //adds the score of the current letter with a letterMultiplier to the total word score
         score = score + (word[i].points * letterMultiplier);
     }
-    return (score * wordMultiplier);
+    score = score * wordMultiplier;
+    return score;
 };
 
 export const validateAllRequirementsExceptWordValidation = async (newLetters, round, possibleLocations) => {
     return Promise.all([
-        areLettersPlaced(newLetters), //works
-        areTwoLettersPlacedInFirstRound(newLetters, round), //works
-        isSetInMiddle(newLetters, round), //works
-        areLettersOnStraightLine(newLetters), //works
+        areLettersPlaced(newLetters),
+        areTwoLettersPlacedInFirstRound(newLetters, round),
+        isSetInMiddle(newLetters, round),
+        areLettersOnStraightLine(newLetters),
         areLettersConnected(newLetters, possibleLocations)
         ])
 };
@@ -210,22 +213,23 @@ export const validateAllRequirementsExceptWordValidation = async (newLetters, ro
 export const collectWords = async (newLetters, placedLetters) => {
     const words = [];
     let direction = "point";
+
+    //find out the general direction of the word, either horizontal or vertical
     if (newLetters.length > 1) {
         direction = detectDirection(newLetters);
     }
 
     for (let  i = 0; i < newLetters.length; i++) {
+        const newWord = [newLetters[i]];
+
         //if direction is vertical, then the vertical word has already been found, which is why I use !==
         if (direction !== "vertical" || i === 0) {
-            let verticalWord = [newLetters[i]];
-            await extractWord(newLetters[i], placedLetters, newLetters, "up")
-                .then(async (firstWordPart) => {
-                    verticalWord = verticalWord.concat(firstWordPart);
-                    await extractWord(newLetters[i], placedLetters, newLetters, "down")
-                        .then((secondWordPart) => {
-                            verticalWord = verticalWord.concat(secondWordPart);
-                        })
-                });
+            let verticalWord = [];
+            const upperWordPart = await extractWord(newLetters[i], placedLetters, newLetters, "up");
+            const lowerWordPart = await extractWord(newLetters[i], placedLetters, newLetters, "down");
+
+            verticalWord = newWord.concat(upperWordPart,lowerWordPart);
+
             verticalWord.sort((a, b) => {
                 return a.location - b.location
             });
@@ -236,15 +240,12 @@ export const collectWords = async (newLetters, placedLetters) => {
         }
 
         if (direction !== "horizontal" || i === 0) {
-            let horizontalWord = [newLetters[i]];
-            await extractWord(newLetters[i], placedLetters, newLetters, "left")
-                .then(async (firstWordPart) => {
-                    horizontalWord = horizontalWord.concat(firstWordPart);
-                    await extractWord(newLetters[i], placedLetters, newLetters, "right")
-                        .then((secondWordPart) => {
-                            horizontalWord = horizontalWord.concat(secondWordPart);
-                        })
-                });
+            let horizontalWord = [];
+            const leftWordPart = await extractWord(newLetters[i], placedLetters, newLetters, "left");
+            const rightWordPart = await extractWord(newLetters[i], placedLetters, newLetters, "right");
+
+            horizontalWord = newWord.concat(leftWordPart, rightWordPart);
+
             horizontalWord.sort((a, b) => {
                 return a.location - b.location
             });
@@ -266,14 +267,25 @@ export const analyzeWords = (words) => {
 
 export const calculateScore = async (words, oldScore) => {
     let score = oldScore;
-    await words.map(async (word) =>
-        score = score + await calculateIndividualWordScore(word));
-    return score;
-};
+    let newWordsScore = [];
+    let newIndividualScore = 0;
+    let totalNewScore=  0;
 
-export const updateRound = (round) => {
-    if ((round > 1 || (round === 1 && isSetInMiddle)) && areLettersConnected) {
-        round++;
-    }
-    return round;
+    await words.map(async (word) => {
+        newIndividualScore = await calculateIndividualWordScore(word);
+        totalNewScore = totalNewScore + newIndividualScore;
+        newWordsScore.push(newIndividualScore);
+    });
+
+    score = score + totalNewScore;
+
+    alert("New Points added from words played: \n Previous score: "
+        + oldScore
+        + "\n Added points: + "
+        + newWordsScore.join(" + ")
+        + "\n New Total Score: "
+        + score
+    );
+
+    return score;
 };

@@ -6,7 +6,7 @@ import {Board} from "./gameBoard.js";
 import {PlayerInfo, PlayerLetters} from "./playerElements";
 import Letters from "./letterData";
 //import {analyzeWord} from './analyzeWord';
-import {validateAllRequirementsExceptWordValidation, collectWords, analyzeWords, calculateScore, updateRound} from "./handleSubmitClick";
+import {validateAllRequirementsExceptWordValidation, collectWords, analyzeWords, calculateScore} from "./handleSubmitClick";
 
 
 /*Game contains as state all the game-wide data to be saved*/
@@ -39,7 +39,7 @@ export class Game extends React.Component {
                 Letters.d,
                 Letters.e,
                 Letters.f,
-                Letters.g,
+                /*Letters.g,
                 Letters.h,
                 Letters.i,
                 Letters.j,
@@ -58,7 +58,7 @@ export class Game extends React.Component {
                 Letters.w,
                 Letters.x,
                 Letters.y,
-                Letters.z,
+                Letters.z,*/
             ],
             /*letters placed on the game board.
             *   letter: letter value
@@ -240,62 +240,69 @@ export class Game extends React.Component {
         this.changeSelectedLetter(emptyLetter);
     }
 
-    refillPlayerLetters(){
+    async refillPlayerLetters(){
         let reserveLetters = this.state.reserveLetters;
         const oldPlayerLetters = this.state.playerLetters;
-        console.log("leftOvers: " + oldPlayerLetters);
+        let allLettersUsed = 0;
         const newPlayerLetters = oldPlayerLetters.map(letter => {
             if(letter.letter === null && reserveLetters.length > 0) {
                 return (reserveLetters.splice(0,1))[0];
             }
             return letter
         });
+
         this.setState({
             reserveLetters: reserveLetters,
             playerLetters: newPlayerLetters
-        })
+        });
+
+        await newPlayerLetters.map(async (letter) => {
+            if(letter.letter === null && reserveLetters.length === 0) {
+                allLettersUsed++;
+            }
+        });
+
+        if (allLettersUsed === 7) {
+            alert("Congratulations! You finished the game with a score of " + this.state.score);
+        }
     }
 
-
-    //TODO: seperate submitClick function so that it calls on another validation function, and if it returns ok then
-    // complete necessary steps. This is currently not a pure function
     //makes sure that the letters placed fit all the right requirements before moving on to the next round
     async handleSubmitClick () {
         //save initial values of state
         const round = this.state.round;
-        const placedLetters = this.state.placedLetters;
-        const score = this.state.score;
-        const newLetters = placedLetters.filter(letter => letter.roundPlaced === round);
         const possibleLocations = this.state.possibleLocations;
-
-
+        const score = this.state.score;
+        const placedLetters = this.state.placedLetters;
         let words = this.state.words;
+
+        //create local variables needed for updating state variables
+        const newRound = round + 1;
+        const newLetters = placedLetters.filter(letter => letter.roundPlaced === round);
         let validatedAllWords = false;
+        let newWords = [];
+        let newScore = 0;
+
+
         validateAllRequirementsExceptWordValidation(newLetters, round, possibleLocations)
-            .then( async (values) => {
+            .then(async (values) => {
                 console.log("got into validation process");
-                //Array that collects all created words
-                //words = await collectWords(newLetters, placedLetters); //PAY ATTENTION HERE IS MISTAKE
-                await collectWords(newLetters, placedLetters)
-                    .then( async (newWords) => {
-                        console.log ("Big word length: " + newWords.length);
-                        validatedAllWords = analyzeWords(newWords);
-                        const newScore = await calculateScore(newWords, score);
-                        console.log("NeWWWWW: " + newScore);
-                        this.setState({score: newScore});
-                        words.push(newWords);
-                        this.setState({words: words});
-                    });
 
-                this.setState({possibleLocations: values[4]});
+                newWords = await collectWords(newLetters, placedLetters);
+                validatedAllWords = await analyzeWords(newWords);
+                newScore = await calculateScore(newWords, score);
+                words.push(newWords);
 
-                const newRound = updateRound(round);
-                this.setState({round: newRound});
+                this.setState({
+                    score: newScore,
+                    words: words,
+                    possibleLocations: values[4],
+                    round: newRound
+                });
 
-                this.refillPlayerLetters();
+                await this.refillPlayerLetters();
             })
             .catch((e) => {throw alert(e)});
-
     }
 
     render() {
@@ -341,18 +348,13 @@ export class Game extends React.Component {
     *               2. analyze words
     *       b.  generate a list of shuffled letters from letterData and save it in state.
     *       c. detect (after submit is pressed) when no more letters are present in player letters and reserve letters and show
-    *           - the score
+    *           - the score DONE
     *           - its placement in the high score list
     *           - BUTTON: return to home
     *           - BUTTON: play again
 *   2. DESIGN
-    *       a. when a round is successfully ended, add a 5-10 second page showing how the score gets calculated
-    *           - darker background
-    *           - each tile in large (word and score)
-    *           - multiplier written below a letter if a letter multiplier
-    *           - multiplier written next to final score if word multiplier
-    *       b. give letters that are placed but not submitted yet a grey tone to show that they can still be moved
-    *       c. add conditional that letters from previous rounds do not scale while mouseOver
+    *       a. give letters that are placed but not submitted yet a grey tone to show that they can still be moved
+    *       b. add conditional that letters from previous rounds do not scale while mouseOver
 *   3. ERRORS
 *
 *
@@ -370,6 +372,7 @@ export class Game extends React.Component {
 *   7. complete legend info table
 *   8. when a new round is started, replace empty player letter slots with new letters from reserve
 *   9. if round 1, you need to place at least 2 letters
+*   10. add alert showing how new score is calculated
 *
 * TODO ERRORS DONE:
 *   1. error when placing only 1 letter at the start of the game

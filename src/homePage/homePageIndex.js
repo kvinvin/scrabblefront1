@@ -1,7 +1,6 @@
 import React from 'react';
 import './homePageIndex.css';
 import '../game/Static Components/decoration.css';
-import './fallingLetters.css';
 import './autoCompleteForm.css';
 
 export class HomePage extends React.Component {
