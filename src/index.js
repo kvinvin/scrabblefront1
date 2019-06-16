@@ -35,40 +35,42 @@ function scrabble () {
 }*/
 
 class Scrabble extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
+    state = {
             status: "homePage", //homePage or game
             username: "",
             gameName: "",
-        };
-        this.handleStartGame = this.handleStartGame.bind(this);
-        this.handleUsernameChange = this.handleUsernameChange.bind(this);
-        this.handleGameNameChange = this.handleGameNameChange.bind(this);
-        this.handleSaveAndExit = this.handleSaveAndExit.bind(this);
-    }
+    };
 
-    handleUsernameChange(event) {
+    handleUsernameChange = (event) => {
         this.setState({username: event.target.value});
-    }
+    };
 
-    handleGameNameChange(event) {
+    handleGameNameChange = (event) => {
         this.setState({gameName: event.target.value});
-    }
+    };
 
     //check if all conditions are met and start a new game
-    handleStartGame() {
+    handleStartGame = () => {
         if (this.state.username !== "" && this.state.gameName !== "") {
            this.setState({status: "game"})
         }
         else{
             alert("username or game name field is empty")
         }
-    }
+    };
 
-    handleSaveAndExit() {
+    //receives the state of a game session and moves it on to the DB
+    handleSaveAndExit = async (gameState) => {
+        console.log("Logging in index " + gameState);
+        await fetch('/saveAndExit', {
+            headers: {
+                'Content-type': 'application/json'
+            },
+            method: 'POST',
+            body: JSON.stringify(gameState)
+        });
         this.setState({status: "homePage"});
-    }
+    };
 
     homePageOrGame() {
         const status = this.state.status;

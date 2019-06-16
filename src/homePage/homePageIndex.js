@@ -4,34 +4,31 @@ import '../game/Static Components/decoration.css';
 import './autoCompleteForm.css';
 
 export class HomePage extends React.Component {
-    constructor (props) {
-        super(props);
-        this.state = {
-            savedGames: ['hello', 'game5', 'test', 'york', 'alabama'],
-            topPlayers: [
-                {
-                    username: 'France93',
-                    score: 4573,
-                    gamesPlayed: 33
-                },
-                {
-                    username: 'Daniela',
-                    score: 3466,
-                    gamesPlayed: 26
-                },
-                {
-                    username: 'Wes Anderson',
-                    score: 3109,
-                    gamesPlayed: 27
-                },
-                {
-                    username: 'Kevin',
-                    score: 2197,
-                    gamesPlayed: 18
-                }
-                ]
-        }
-    }
+    state = {
+        savedGames: ['hello', 'game5', 'test', 'york', 'alabama'],
+        topPlayers: [
+            {
+                username: 'France93',
+                score: 4573,
+                gamesPlayed: 33
+            },
+            {
+                username: 'Daniela',
+                score: 3466,
+                gamesPlayed: 26
+            },
+            {
+                username: 'Wes Anderson',
+                score: 3109,
+                gamesPlayed: 27
+            },
+            {
+                username: 'Kevin',
+                score: 2197,
+                gamesPlayed: 18
+            }
+            ]
+    };
 
     render () {
         return (
@@ -47,7 +44,7 @@ export class HomePage extends React.Component {
                         <div className="autocomplete">
                             <input id="userInput" type="text" name="savedGames" placeholder="Search saved games..."/>
                         </div>
-                        <input type="submit"/>
+                        <input type="submit" value="SEARCH"/>
                     </form>
                 </div>
                 <div className = "newGame">

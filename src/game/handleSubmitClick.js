@@ -1,14 +1,14 @@
 //check that at least 1 letter was placed on the board
 const areLettersPlaced = async (newLetters) => {
     if (newLetters.length === 0){
-        throw ("You need to place some letters on the board before ending the round :)");
+        throw String ("You need to place some letters on the board before ending the round :)");
     }
 };
 
 //In first round, at least 2 letters need to be placed
 const areTwoLettersPlacedInFirstRound = async (newLetters, round) => {
     if (newLetters.length < 2 && round === 1) {
-        throw ("You need to place at least 2 letters in the first round");
+        throw String ("You need to place at least 2 letters in the first round");
     }
 };
 
@@ -23,7 +23,7 @@ const isSetInMiddle = async (newLetters, round) => {
             }
         }
         if (isSetInMiddle) return (isSetInMiddle);
-        else throw ("To be able to end the first round, you need to place a letter on the center tile");
+        else throw String ("To be able to end the first round, you need to place a letter on the center tile");
     }
 };
 
@@ -44,21 +44,17 @@ const areLettersOnStraightLine = async (newLetters) => {
         //calculates only horizontal values
         if (direction === "horizontal"){
             let xNew = Math.floor(location / 15);
-            if (xNew !== x1) throw ("All letters placed in this round need to be placed on the same line");
+            if (xNew !== x1) throw String ("All letters placed in this round need to be placed on the same line");
         }
         else {
             //otherwise calculates only vertical values
             let yNew = location % 15;
-            if (yNew !== y1) throw ("All letters placed in this round need to be placed on the same line");
+            if (yNew !== y1) throw String ("All letters placed in this round need to be placed on the same line");
         }
     }
 };
 
-/*make sure all letters are in contact with each other.
-* Previous functions have already checked that
-*   - the center tile is used
-*   - that the letters are on a straight line
-*/
+//make sure all letters are in contact with each other
 const areLettersConnected = async (newLetters, possibleLocations) => {
     let newLocations = newLetters.map(letter => letter.location);
     //i is used as an index marker to know which index in the array to compare
@@ -94,20 +90,13 @@ const areLettersConnected = async (newLetters, possibleLocations) => {
             //check one index lower of the newLocations
             i--;
             if (i < 0 ) {
-                throw String("A letter is not in contact with the rest of the letters!");
+                throw String ("A letter is not in contact with the rest of the letters!");
             }
         }
     }
     return possibleLocations;
 };
 
-/*
-const sortNewLetters = (newLetters) => {
-    newLetters.sort((a,b) => {
-        return a.location - b.location
-    });
-};
-*/
 const detectDirection = (newLetters) => {
     //first letter coordinates
     const firstLocation = newLetters[0].location;
@@ -143,20 +132,11 @@ const extractWord = async (letter, placedLetters, newLetters, direction) => {
     let x = 0;
 
     switch (direction) {
-        case "up":
-            x = -15;
-            break;
-        case "down":
-            x = 15;
-            break;
-        case "left":
-            x = -1;
-            break;
-        case "right":
-            x = 1;
-            break;
-        default:
-            return;
+        case "up":      x = -15;    break;
+        case "down":    x = 15;     break;
+        case "left":    x = -1;     break;
+        case "right":   x = 1;      break;
+        default: return;
     }
 
     while (searchMore) {

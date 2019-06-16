@@ -1,124 +1,73 @@
 import React from 'react'
 import './gameIndex.css'
 import {GiveUp, SaveAndExit, Submit} from './Static Components/gameButtons.js'
-import {Legend, Title} from "./Static Components/decoration.js";
-import {Board} from "./gameBoard.js";
-import {PlayerInfo, PlayerLetters} from "./playerElements";
-import Letters from "./letterData";
+import {Legend, Title} from './Static Components/decoration.js';
+import {Board} from './gameBoard.js';
+import {PlayerInfo, PlayerLetters} from './playerElements';
 //import {analyzeWord} from './analyzeWord';
 import {validateAllRequirementsExceptWordValidation, collectWords, analyzeWords, calculateScore} from "./handleSubmitClick";
 
+const emptyLetter = {
+    letter: null,
+    points: null
+};
 
 /*Game contains as state all the game-wide data to be saved*/
 export class Game extends React.Component {
-    constructor (props) {
-        super (props);
-
-        //this.generateArrayFromObjects = this.generateArrayFromObjects.bind(this);
-        //this.shuffle = this.shuffle.bind(this);
-
-        /*let reserveLetters = this.generateArrayFromObjects(Letters);
-        console.log("RL:" + reserveLetters);
-        let shuffledReserveLetters = this.shuffle(reserveLetters);
-        console.log("SRL: " + shuffledReserveLetters);
-        let firstSeven = shuffledReserveLetters.splice(0,7);*/
-        this.state = {
-            //letters player can play in current round
-            playerLetters: [
-                Letters.z,
-                Letters.y,
-                Letters.x,
-                Letters.w,
-                Letters.v,
-                Letters.u,
-                Letters.t],
-            reserveLetters: [
-                Letters.a,
-                Letters.b,
-                Letters.c,
-                Letters.d,
-                Letters.e,
-                Letters.f,
-                /*Letters.g,
-                Letters.h,
-                Letters.i,
-                Letters.j,
-                Letters.k,
-                Letters.l,
-                Letters.m,
-                Letters.n,
-                Letters.o,
-                Letters.p,
-                Letters.q,
-                Letters.r,
-                Letters.s,
-                Letters.t,
-                Letters.u,
-                Letters.v,
-                Letters.w,
-                Letters.x,
-                Letters.y,
-                Letters.z,*/
-            ],
+    state = {
+        //letters player can play in current round
+        playerLetters: [
+            emptyLetter,
+            emptyLetter,
+            emptyLetter,
+            emptyLetter,
+            emptyLetter,
+            emptyLetter,
+            emptyLetter
+        ],
+        reserveLetters: [],
+        /*letters placed on the game board.
+         *   letter: letter value
+         *   points: points value for that letter
+         *   roundPlaced: the round it was placed in
+         *   location: location on board where it is to be placed
+         *   multiplier: multiplier effect of tile letter is placed on
+         * */
+        placedLetters: [
             /*letters placed on the game board.
-            *   letter: letter value
-            *   points: points value for that letter
-            *   roundPlaced: the round it was placed in
-            *   location: location on board where it is to be placed
-            *   multiplier: multiplier effect of tile letter is placed on
-            * */
-            placedLetters: [],
-            //letter that is currently selected
-            selectedLetter: {
-                type: null, //either of type "player" or "board"
-                location: null, //index in list where the letter is to be found
-                letter: null, //the letter that was selected
-                points: null, // the points of the selected letter
-                roundPlaced: null //the round the selected letter was placed in
-            },
-            words: [],
-            round: 1,
-            //a list of possible locations where a letter can be placed. Is saved as state to avoid recalculating again
-            possibleLocations: [112],
-            score: 0
-        };
-        //only bind the functions that get passed on as props
-        this.changeSelectedLetter = this.changeSelectedLetter.bind(this);
-        this.handleBoardTileClick = this.handleBoardTileClick.bind(this);
-        this.handleEmptyLetterSlotClick = this.handleEmptyLetterSlotClick.bind(this);
-        this.handleSubmitClick = this.handleSubmitClick.bind(this);
-    }
-    /*
-        generateArrayFromObjects (objectList) {
-            const letters = [];
-            Object.keys(objectList).forEach(key => {
-                const frequency = objectList[key].frequency;
-                let letter = {
-                    letter: objectList[key].letter,
-                    points: objectList[key].points
-                }
-                for(let i = 0; i < frequency; i++){
-                    letters.push(letter)
-                }
-            });
-            return letters;
-        };
+                *   letter: letter value
+                *   points: points value for that letter
+                *   roundPlaced: the round it was placed in
+                *   location: location on board where it is to be placed
+                *   multiplier: multiplier effect of tile letter is placed on
+                */
+        ],
+        //letter that is currently selected
+        selectedLetter: {
+            type: null, //either of type "player" or "board"
+            location: null, //index in list where the letter is to be found
+            letter: null, //the letter that was selected
+            points: null, // the points of the selected letter
+            roundPlaced: null //the round the selected letter was placed in
+        },
+        words: [],
+        round: 1,
+        //a list of possible locations where a letter can be placed. Is saved as state to avoid recalculating again
+        possibleLocations: [112],
+        score: 0
+    };
 
-        async shuffle (set) {
-            const arraySize = set.length;
-            for (let i = arraySize; i > 0; i-- ) {
-                const r = Math.floor(Math.random() * arraySize);
-                let temp = set[arraySize - 1];
-                set[arraySize - 1] = set[r]; //places random var at end of array
-                set[r] = temp;
-            }
-            return set
-        };
-    */
-    //updates selectedLetter to the new selected letter
-    changeSelectedLetter (newLetter) {
-        this.setState({selectedLetter: newLetter});
+    componentDidMount() {
+        fetch('/game')
+            .then(res => res.json())
+            .then(initialState => {
+                this.setState( initialState)})
     }
+
+    //updates selectedLetter to the new selected letter
+    changeSelectedLetter = (newLetter) => {
+        this.setState({selectedLetter: newLetter});
+    };
 
 
     //adds a playerLetter to the board by adding it to the list of placedLetters
@@ -179,7 +128,7 @@ export class Game extends React.Component {
      *  - i: location on board where letter is to be placed
      *  - multiplier: the multiplier effect of the clicked letter
     */
-    async handleBoardTileClick(i, multiplier) {
+    handleBoardTileClick = async (i, multiplier) => {
         const selectedLetter = this.state.selectedLetter;
         //make sure a letter is already "selected", otherwise don't continue
         if(selectedLetter.letter === null){
@@ -205,7 +154,7 @@ export class Game extends React.Component {
             roundPlaced: null
         };
         this.changeSelectedLetter(emptyLetter);
-    }
+    };
 
 
     //adds a letter from the board to the player dock, if all conditions are met
@@ -217,7 +166,7 @@ export class Game extends React.Component {
     }
 
     //responsible for checking if conditions are met to move letter from board to player dock
-    async handleEmptyLetterSlotClick(i) {
+    handleEmptyLetterSlotClick = async (i) => {
         const selectedLetter = this.state.selectedLetter;
         const round = this.state.round;
         //make sure a letter is already "selected", otherwise don't continue
@@ -238,7 +187,7 @@ export class Game extends React.Component {
             points: null
         };
         this.changeSelectedLetter(emptyLetter);
-    }
+    };
 
     async refillPlayerLetters(){
         let reserveLetters = this.state.reserveLetters;
@@ -268,7 +217,7 @@ export class Game extends React.Component {
     }
 
     //makes sure that the letters placed fit all the right requirements before moving on to the next round
-    async handleSubmitClick () {
+    handleSubmitClick = async () => {
         //save initial values of state
         const round = this.state.round;
         const possibleLocations = this.state.possibleLocations;
@@ -303,12 +252,16 @@ export class Game extends React.Component {
                 await this.refillPlayerLetters();
             })
             .catch((e) => {throw alert(e)});
-    }
+    };
+
+    handleSaveAndExit = () => {
+        this.props.handleSaveAndExit(this.state);
+    };
 
     render() {
         return(
             <div className="game">
-                <SaveAndExit handleSaveAndExit = {this.props.handleSaveAndExit}/>
+                <SaveAndExit handleSaveAndExit = {this.handleSaveAndExit}/>
                 <Title gameName = {this.props.gameName}/>
                 <GiveUp/>
                 <PlayerInfo
@@ -346,7 +299,6 @@ export class Game extends React.Component {
     *           - words formed need to be proper words
     *               1. extract words DONE
     *               2. analyze words
-    *       b.  generate a list of shuffled letters from letterData and save it in state.
     *       c. detect (after submit is pressed) when no more letters are present in player letters and reserve letters and show
     *           - the score DONE
     *           - its placement in the high score list
@@ -373,6 +325,7 @@ export class Game extends React.Component {
 *   8. when a new round is started, replace empty player letter slots with new letters from reserve
 *   9. if round 1, you need to place at least 2 letters
 *   10. add alert showing how new score is calculated
+*   11. generate a list of shuffled letters from letterData and save it in state
 *
 * TODO ERRORS DONE:
 *   1. error when placing only 1 letter at the start of the game

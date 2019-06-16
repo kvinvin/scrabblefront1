@@ -4,12 +4,7 @@ import {Letter} from "./letter.js";
 
 
 export class PlayerLetters extends React.Component {
-    constructor(props){
-        super(props);
-        this.handleSelected = this.handleSelected.bind(this);
-    }
-
-    handleSelected(i, letter) {
+    handleSelected = (i, letter) => {
         const newLetter = {
             type: "player",
             location: i,
@@ -19,7 +14,7 @@ export class PlayerLetters extends React.Component {
         if(this.props.selectedLetter !== newLetter) {
             this.props.changeSelectedLetter(newLetter);
         }
-    }
+    };
 
     render() {
         //Creates the list of letters that the player has
@@ -48,10 +43,6 @@ export class PlayerLetters extends React.Component {
 }
 
 export class PlayerInfo extends React.Component {
-    constructor(props){
-        super(props);
-    }
-
     render() {
         return (
             <div className="rectangle">
