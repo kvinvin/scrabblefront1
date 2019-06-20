@@ -26,13 +26,6 @@ export class Game extends React.Component {
             emptyLetter
         ],
         reserveLetters: [],
-        /*letters placed on the game board.
-         *   letter: letter value
-         *   points: points value for that letter
-         *   roundPlaced: the round it was placed in
-         *   location: location on board where it is to be placed
-         *   multiplier: multiplier effect of tile letter is placed on
-         * */
         placedLetters: [
             /*letters placed on the game board.
                 *   letter: letter value

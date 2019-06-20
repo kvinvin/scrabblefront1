@@ -1,44 +1,16 @@
-import React, {useState} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import {Game} from "./game/gameIndex.js";
 import {HomePage} from "./homePage/homePageIndex.js";
+const axios = require('axios');
 
-/*
-function scrabble () {
-    const [status, setStatus] = useState("homePage");
-    const [username, setUsername] = useState("");
-    const [gameName, setGameName] = useState("");
-
-    let componentUI = null;
-
-    if (status === "homePage") {
-        componentUI = homePage(
-            username,
-            gameName,
-            setUsername,
-            setGameName,
-            setStatus
-            );
-    }
-    else if (status === "game") {
-        componentUI = <Game
-            username = {username}
-            gameName = {gameName}
-            handleSaveAndExit = {setStatus("homePage")}
-        />;
-    }
-    else {
-        componentUI = Error("404: Page not found");
-    }
-    return <div/>;
-}*/
 
 class Scrabble extends React.Component {
     state = {
             status: "homePage", //homePage or game
             username: "",
-            gameName: "",
+            gameName: ""
     };
 
     handleUsernameChange = (event) => {
@@ -50,9 +22,24 @@ class Scrabble extends React.Component {
     };
 
     //check if all conditions are met and start a new game
-    handleStartGame = () => {
+    handleStartGame = async () => {
+        const userInput = {
+            username: this.state.username,
+            gameName: this.state.gameName
+        };
         if (this.state.username !== "" && this.state.gameName !== "") {
-           this.setState({status: "game"})
+            const response = await axios.post('/startGame', userInput);
+                /*fetch('/startGame', {
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify(userInput)
+            });*/
+            const userInputIsTaken = response.body.result;
+            //this.setState({status: 'game'});
+            if (userInputIsTaken) {this.setState({status: "game"})}
+            else {alert("Please use another game name, this game name is already in use for this user");}
         }
         else{
             alert("username or game name field is empty")
@@ -61,13 +48,24 @@ class Scrabble extends React.Component {
 
     //receives the state of a game session and moves it on to the DB
     handleSaveAndExit = async (gameState) => {
+        const fullGameState = {
+            gameName: this.state.gameName,
+            username: this.state.username,
+            reserveLetters: gameState.reserveLetters,
+            playerLetters: gameState.playerLetters,
+            placedLetters: gameState.placedLetters,
+            words: gameState.words,
+            round: gameState.round,
+            possibleLocations: gameState.possibleLocations,
+            score: gameState.score
+        };
         console.log("Logging in index " + gameState);
         await fetch('/saveAndExit', {
             headers: {
                 'Content-type': 'application/json'
             },
             method: 'POST',
-            body: JSON.stringify(gameState)
+            body: JSON.stringify(fullGameState)
         });
         this.setState({status: "homePage"});
     };
@@ -115,7 +113,7 @@ TODO:
     3. add functionality to home page buttons and forms
     4. connect to server so that:
         a. words can be verified
-        b. games can be saved when save button is pressed
+        b. games can be saved when save button is pressed DONE
         c. username info can be cross referenced to save a new user or save new info to present user
         d. update user info when give up or game is completed
  */
