@@ -1,11 +1,11 @@
 import React from 'react'
-import './gameIndex.css'
-import {GiveUp, SaveAndExit, Submit} from './Static Components/gameButtons.js'
-import {Legend, Title} from './Static Components/decoration.js';
+import '../css/gameIndex.css'
+import {GiveUp, SaveAndExit, Submit} from '../Static Components/gameButtons.js'
+import {Legend, Title} from '../Static Components/decoration.js';
 import {Board} from './gameBoard.js';
 import {PlayerInfo, PlayerLetters} from './playerElements';
 //import {analyzeWord} from './analyzeWord';
-import {validateAllRequirementsExceptWordValidation, collectWords, analyzeWords, calculateScore} from "./handleSubmitClick";
+import {validateAllRequirementsExceptWordValidation, collectWords, analyzeWords, calculateScore} from "../controller/handleSubmitClick";
 
 const emptyLetter = {
     letter: null,

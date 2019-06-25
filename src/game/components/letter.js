@@ -1,5 +1,5 @@
 import React from 'react'
-import './letter.css'
+import '../css/letter.css'
 
 export class Letter extends React.Component {
     render() {

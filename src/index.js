@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import {Game} from "./game/gameIndex.js";
+import {Game} from "./game/components/gameIndex.js";
 import {HomePage} from "./homePage/homePageIndex.js";
 const axios = require('axios');
 

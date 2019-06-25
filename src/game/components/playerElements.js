@@ -1,5 +1,5 @@
 import React from 'react'
-import './playerElement.css'
+import '../css/playerElement.css'
 import {Letter} from "./letter.js";
 
 
