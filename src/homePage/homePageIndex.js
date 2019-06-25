@@ -64,7 +64,7 @@ export class HomePage extends React.Component {
                                 maxLength = "6"
                                 placeholder = "Game name"
                             /><br/><br/>
-                            <input type="submit" value="START GAME"/>
+                            <input type="submit" value="NEW GAME"/>
                         </label>
                     </form>
                 </div>

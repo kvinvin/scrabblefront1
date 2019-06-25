@@ -22,28 +22,22 @@ class Scrabble extends React.Component {
     };
 
     //check if all conditions are met and start a new game
-    handleStartGame = async () => {
+    handleStartGame = async (event) => {
+        //prevents the form from refreshing the page
+        event.preventDefault();
+
         const userInput = {
             username: this.state.username,
             gameName: this.state.gameName
         };
-        if (this.state.username !== "" && this.state.gameName !== "") {
+
+        if (userInput.username !== "" && userInput.gameName !== "") {
             const response = await axios.post('/startGame', userInput);
-                /*fetch('/startGame', {
-                headers: {
-                    'Content-type': 'application/json'
-                },
-                method: 'POST',
-                body: JSON.stringify(userInput)
-            });*/
-            const userInputIsTaken = response.body.result;
-            //this.setState({status: 'game'});
-            if (userInputIsTaken) {this.setState({status: "game"})}
-            else {alert("Please use another game name, this game name is already in use for this user");}
-        }
-        else{
-            alert("username or game name field is empty")
-        }
+            if (response.data.exists) {
+                axios.get('/OK');
+                alert('Please use another game name, this game name is already in use for this user');
+            } else this.setState({status: "game"});
+        } else alert("username or game name field is empty")
     };
 
     //receives the state of a game session and moves it on to the DB
@@ -60,13 +54,7 @@ class Scrabble extends React.Component {
             score: gameState.score
         };
         console.log("Logging in index " + gameState);
-        await fetch('/saveAndExit', {
-            headers: {
-                'Content-type': 'application/json'
-            },
-            method: 'POST',
-            body: JSON.stringify(fullGameState)
-        });
+        await axios.post('/saveAndExit', fullGameState);
         this.setState({status: "homePage"});
     };
 
