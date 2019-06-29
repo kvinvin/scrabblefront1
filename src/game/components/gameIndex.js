@@ -4,8 +4,8 @@ import {GiveUp, SaveAndExit, Submit} from '../Static Components/gameButtons.js'
 import {Legend, Title} from '../Static Components/decoration.js';
 import {Board} from './gameBoard.js';
 import {PlayerInfo, PlayerLetters} from './playerElements';
-//import {analyzeWord} from './analyzeWord';
-import {validateAllRequirementsExceptWordValidation, collectWords, analyzeWords, calculateScore} from "../controller/handleSubmitClick";
+import {validateAllRequirements} from "../controller/handleSubmitClick";
+import {calculateScore} from "../controller/helper/scoreCalculator";
 
 const emptyLetter = {
     letter: null,
@@ -62,7 +62,6 @@ export class Game extends React.Component {
         this.setState({selectedLetter: newLetter});
     };
 
-
     //adds a playerLetter to the board by adding it to the list of placedLetters
     async addLetterToPlacedLetters (newLetter) {
         let tmp = this.state.placedLetters.slice();
@@ -70,7 +69,6 @@ export class Game extends React.Component {
         tmp.push(newLetter);
         await this.setState({placedLetters: tmp});
     }
-
 
     /*
     * 1- Finds letter in placedLetters list with position of selectedLetter
@@ -92,6 +90,7 @@ export class Game extends React.Component {
         tmp.splice(index, 1);
         this.setState({placedLetters: tmp});
     }
+
     //gets called from Board in handleTileClick(). Deletes moved letter from old position
     removeSelectedLetterFromPlayerDock () {
         const location = this.state.selectedLetter.location;
@@ -148,7 +147,6 @@ export class Game extends React.Component {
         };
         this.changeSelectedLetter(emptyLetter);
     };
-
 
     //adds a letter from the board to the player dock, if all conditions are met
     async addLetterToPlayerLetters (i, newLetter) {
@@ -216,35 +214,35 @@ export class Game extends React.Component {
         const possibleLocations = this.state.possibleLocations;
         const score = this.state.score;
         const placedLetters = this.state.placedLetters;
-        let words = this.state.words;
+        const words = this.state.words;
 
         //create local variables needed for updating state variables
-        const newRound = round + 1;
         const newLetters = placedLetters.filter(letter => letter.roundPlaced === round);
-        let validatedAllWords = false;
-        let newWords = [];
-        let newScore = 0;
+        const newRound = round + 1;
+        let newScore;
 
+        try{
+            //values is a json with {possibleLocationsUpdate, newWords, validWords}
+            const values = await validateAllRequirements(newLetters, placedLetters, round, possibleLocations);
 
-        validateAllRequirementsExceptWordValidation(newLetters, round, possibleLocations)
-            .then(async (values) => {
-                console.log("got into validation process");
+            if (!values.validWords) {
+                throw String ("One of the words you placed is not a valid word");
+            }
 
-                newWords = await collectWords(newLetters, placedLetters);
-                validatedAllWords = await analyzeWords(newWords);
-                newScore = await calculateScore(newWords, score);
-                words.push(newWords);
+            newScore = await calculateScore(values.newWords, score);
+            words.push(values.newWords);
 
-                this.setState({
-                    score: newScore,
-                    words: words,
-                    possibleLocations: values[4],
-                    round: newRound
-                });
+            this.setState({
+                score: newScore,
+                words: words,
+                possibleLocations: values.possibleLocations,
+                round: newRound
+            });
 
-                await this.refillPlayerLetters();
-            })
-            .catch((e) => {throw alert(e)});
+                    await this.refillPlayerLetters();
+        } catch (e) {
+            throw alert(e);
+        }
     };
 
     handleSaveAndExit = () => {

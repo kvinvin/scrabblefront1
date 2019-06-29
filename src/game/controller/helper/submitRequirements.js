@@ -1,17 +1,18 @@
 import {detectDirection} from './detectDirection'
-import {analyzeWord} from "../analyzeWord";
 
 //check that at least 1 letter was placed on the board
 const areLettersPlaced = async (newLetters) => {
     if (newLetters.length === 0){
         throw String ("You need to place some letters on the board before ending the round :)");
-    }
+    } else return true;
 };
 
 //In first round, at least 2 letters need to be placed
 const areTwoLettersPlacedInFirstRound = async (newLetters, round) => {
     if (newLetters.length < 2 && round === 1) {
         throw String ("You need to place at least 2 letters in the first round");
+    } else {
+        return true;
     }
 };
 
@@ -55,6 +56,7 @@ const areLettersOnStraightLine = async (newLetters) => {
             if (yNew !== y1) throw String ("All letters placed in this round need to be placed on the same line");
         }
     }
+    return true;
 };
 
 //make sure all letters are in contact with each other
@@ -100,12 +102,12 @@ const areLettersConnected = async (newLetters, possibleLocations) => {
     return possibleLocations;
 };
 
-export const validateAllRequirements = async (newLetters, round, possibleLocations) => {
+export const validateAllRequirementsHelper = (newLetters, round, possibleLocations) => {
     return Promise.all([
-        areLettersPlaced(newLetters),
-        areTwoLettersPlacedInFirstRound(newLetters, round),
-        isSetInMiddle(newLetters, round),
-        areLettersOnStraightLine(newLetters),
-        areLettersConnected(newLetters, possibleLocations)
-    ])
-}
+        areLettersPlaced(newLetters), //returns true if passed, else throws String
+        areTwoLettersPlacedInFirstRound(newLetters, round), //returns true if passed, else throws String
+        isSetInMiddle(newLetters, round), //returns true if passed, else throws String
+        areLettersOnStraightLine(newLetters), //returns true if passed, else throws String
+        areLettersConnected(newLetters, possibleLocations) //side effect: returns new possibleLocations
+    ]);
+};
