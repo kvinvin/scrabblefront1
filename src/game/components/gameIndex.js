@@ -57,6 +57,16 @@ export class Game extends React.Component {
                 this.setState( initialState)})
     }
 
+    //handles save and exit button click
+    handleSaveAndExit = () => {
+        this.props.handleSaveAndExit(this.state);
+    };
+
+    //handles end of game for giveUp button press or completed game
+    handleEndGame = () => {
+        this.props.handleEndGame(this.state.score)
+    };
+
     //updates selectedLetter to the new selected letter
     changeSelectedLetter = (newLetter) => {
         this.setState({selectedLetter: newLetter});
@@ -160,23 +170,24 @@ export class Game extends React.Component {
     handleEmptyLetterSlotClick = async (i) => {
         const selectedLetter = this.state.selectedLetter;
         const round = this.state.round;
+
         //make sure a letter is already "selected", otherwise don't continue
-        if(selectedLetter.letter === null || selectedLetter.roundPlaced !== round){
-            return;
-        }
+        if(selectedLetter.letter === null || selectedLetter.roundPlaced !== round) return;
+
         //generate letter object to be placed
         const newLetter = {
             letter: selectedLetter.letter,
             points: selectedLetter.points
         };
-        await this.addLetterToPlayerLetters(i, newLetter);
-        this.removeSelectedLetterFromPreviousLocation();
-        //set selectedLetter to null
         const emptyLetter = {
             type: null,
             letter: null,
             points: null
         };
+
+        await this.addLetterToPlayerLetters(i, newLetter);
+        this.removeSelectedLetterFromPreviousLocation();
+        //set selectedLetter to null
         this.changeSelectedLetter(emptyLetter);
     };
 
@@ -204,6 +215,7 @@ export class Game extends React.Component {
 
         if (allLettersUsed === 7) {
             alert("Congratulations! You finished the game with a score of " + this.state.score);
+            this.handleEndGame();
         }
     }
 
@@ -224,33 +236,21 @@ export class Game extends React.Component {
         try{
             //values is a json with {possibleLocationsUpdate, newWords, validWords}
             const values = await validateAllRequirements(newLetters, placedLetters, round, possibleLocations);
-
             if (!values.validWords) {
                 throw String ("One of the words you placed is not a valid word");
             }
-
             newScore = await calculateScore(values.newWords, score);
             words.push(values.newWords);
-
             this.setState({
                 score: newScore,
                 words: words,
                 possibleLocations: values.possibleLocations,
                 round: newRound
             });
-
-                    await this.refillPlayerLetters();
+            await this.refillPlayerLetters();
         } catch (e) {
             throw alert(e);
         }
-    };
-
-    handleSaveAndExit = () => {
-        this.props.handleSaveAndExit(this.state);
-    };
-
-    handleGiveUp = () => {
-        this.props.handleGiveUp(this.state.score)
     };
 
     render() {
@@ -258,7 +258,7 @@ export class Game extends React.Component {
             <div className="game">
                 <SaveAndExit handleSaveAndExit = {this.handleSaveAndExit}/>
                 <Title gameName = {this.props.gameName}/>
-                <GiveUp handleGiveUp = {this.handleGiveUp}/>
+                <GiveUp handleEndGame = {this.handleEndGame}/>
                 <PlayerInfo
                     score = {this.state.score}
                     username= {this.props.username}
