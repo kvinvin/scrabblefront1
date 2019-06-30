@@ -18,7 +18,7 @@ export class SaveAndExit extends React.Component {
 export class GiveUp extends React.Component {
     render() {
         return (
-            <button className="button">
+            <button className="button" onClick = {this.props.handleGiveUp}>
                 <div className="xShape">X</div>
                 <div className="textStyle">Give Up</div>
             </button>

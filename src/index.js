@@ -58,6 +58,18 @@ class Scrabble extends React.Component {
         this.setState({status: "homePage"});
     };
 
+    handleGiveUp = async (score) => {
+        const fullGameState = {
+            username: this.state.username,
+            gameName: this.state.gameName,
+            saveData: true,
+            score: score
+        };
+        console.log("Logging in index " + score);
+        await axios.post('/giveUp', fullGameState);
+        this.setState({status: "homePage"});
+    };
+
     homePageOrGame() {
         const status = this.state.status;
 
@@ -75,6 +87,7 @@ class Scrabble extends React.Component {
                 username = {this.state.username}
                 gameName = {this.state.gameName}
                 handleSaveAndExit = {this.handleSaveAndExit}
+                handleGiveUp = {this.handleGiveUp}
             />
         }
         else {

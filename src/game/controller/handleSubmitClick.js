@@ -6,6 +6,7 @@ export const validateAllRequirements = async (newLetters, placedLetters, round, 
 
     const newWords = await collectWords(newLetters, placedLetters);
     const validWords = await analyzeWords(newWords);
+
     return {
         possibleLocations: values[4],
         newWords: newWords,

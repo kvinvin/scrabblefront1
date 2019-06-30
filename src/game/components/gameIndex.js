@@ -249,12 +249,16 @@ export class Game extends React.Component {
         this.props.handleSaveAndExit(this.state);
     };
 
+    handleGiveUp = () => {
+        this.props.handleGiveUp(this.state.score)
+    };
+
     render() {
         return(
             <div className="game">
                 <SaveAndExit handleSaveAndExit = {this.handleSaveAndExit}/>
                 <Title gameName = {this.props.gameName}/>
-                <GiveUp/>
+                <GiveUp handleGiveUp = {this.handleGiveUp}/>
                 <PlayerInfo
                     score = {this.state.score}
                     username= {this.props.username}

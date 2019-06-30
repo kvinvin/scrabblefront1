@@ -90,7 +90,8 @@ export const collectWords = async (newLetters, placedLetters) => {
 
 //returns true if the word exists, false if it is not a word
 export const analyzeWords = async (words) => {
-    return await axios.post('/validateWord', words);
+    const response = await axios.post('/validateWord', words);
+    return response.data.isValid;
 };
 
 
