@@ -2,32 +2,72 @@ import React from 'react';
 import './homePageIndex.css';
 import '../game/Static Components/decoration.css';
 import './autoCompleteForm.css';
+const axios = require('axios');
 
 export class HomePage extends React.Component {
     state = {
         savedGames: ['hello', 'game5', 'test', 'york', 'alabama'],
         topPlayers: [
             {
+                _id: null,
                 username: 'France93',
-                score: 4573,
+                highScore: 4573,
                 gamesPlayed: 33
             },
             {
-                username: 'Daniela',
-                score: 3466,
-                gamesPlayed: 26
+                _id: null,
+                username: 'France93',
+                highScore: 4573,
+                gamesPlayed: 33
             },
             {
-                username: 'Wes Anderson',
-                score: 3109,
-                gamesPlayed: 27
+                _id: null,
+                username: 'France93',
+                highScore: 4573,
+                gamesPlayed: 33
             },
             {
-                username: 'Kevin',
-                score: 2197,
-                gamesPlayed: 18
-            }
+                _id: null,
+                username: 'France93',
+                highScore: 4573,
+                gamesPlayed: 33
+            },
             ]
+    };
+
+    getHighScore = async (type) => {
+        const response = await axios.post('/getTopPlayers', {topPlayersType: type}); //options: bestHighScore, bestAverageScore, bestTotalScore
+        if (response.data.isOk) this.setState({topPlayers: response.data.topPlayers});
+        else {this.setState({topPlayers: [
+                {
+                    _id: null,
+                    username: 'first',
+                    highScore: 4573,
+                    gamesPlayed: 33
+                },
+                {
+                    _id: null,
+                    username: 'second',
+                    highScore: 4573,
+                    gamesPlayed: 33
+                },
+                {
+                    _id: null,
+                    username: 'third',
+                    highScore: 4573,
+                    gamesPlayed: 33
+                },
+                {
+                    _id: null,
+                    username: 'fourth',
+                    highScore: 4573,
+                    gamesPlayed: 33
+                },
+            ]})};
+    };
+
+    componentDidMount() {
+        this.getHighScore("bestHighScore");
     };
 
     render () {
