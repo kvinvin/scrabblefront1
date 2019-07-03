@@ -9,25 +9,21 @@ export class HomePage extends React.Component {
         savedGames: ['hello', 'game5', 'test', 'york', 'alabama'],
         topPlayers: [
             {
-                _id: null,
                 username: 'France93',
                 highScore: 4573,
                 gamesPlayed: 33
             },
             {
-                _id: null,
                 username: 'France93',
                 highScore: 4573,
                 gamesPlayed: 33
             },
             {
-                _id: null,
                 username: 'France93',
                 highScore: 4573,
                 gamesPlayed: 33
             },
             {
-                _id: null,
                 username: 'France93',
                 highScore: 4573,
                 gamesPlayed: 33
