@@ -21,25 +21,21 @@ const calculateIndividualWordScore = async (word) => {
 
 export const calculateScore = async (words, oldScore) => {
     let score = oldScore;
-    let newWordsScore = [];
+    let wordsScore = [];
     let newIndividualScore = 0;
     let totalNewScore=  0;
 
     await words.map(async (word) => {
         newIndividualScore = await calculateIndividualWordScore(word);
         totalNewScore = totalNewScore + newIndividualScore;
-        newWordsScore.push(newIndividualScore);
+        wordsScore.push(newIndividualScore);
     });
 
     score = score + totalNewScore;
 
-    alert("New Points added from words played: \n Previous score: "
-        + oldScore
-        + "\n Added points: + "
-        + newWordsScore.join(" + ")
-        + "\n New Total Score: "
-        + score
-    );
-
-    return score;
+    return {
+        oldScore: oldScore,
+        wordsScore: wordsScore,
+        newScore: score
+    };
 };

@@ -1,0 +1,24 @@
+/*Start of row 2 - column 3: legend*/
+.legendRectangle {
+    background-color: #52A793;
+    width: 220px;
+    height: 300px;
+    border-radius: 10px;
+
+    position: relative;
+    left: 90px;
+    top: 20%;
+}
+
+.tileInformation {
+    display: grid;
+    grid-template-columns: 100px 120px;
+    width: 220px;
+    height: 55px;
+}
+
+.square {
+    margin-left: 20px;
+    width: 30px;
+    height: 30px;
+}

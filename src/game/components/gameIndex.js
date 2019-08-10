@@ -1,11 +1,13 @@
 import React from 'react'
 import '../css/gameIndex.css'
-import {GiveUp, SaveAndExit, Submit} from '../Static Components/gameButtons.js'
-import {Legend, Title} from '../Static Components/decoration.js';
+import {GiveUp, SaveAndExit, Submit} from './gameButtons.js'
+import {Title} from '../../generic/title.js';
 import {Board} from './gameBoard.js';
 import {PlayerInfo, PlayerLetters} from './playerElements';
 import {validateAllRequirements} from "../controller/handleSubmitClick";
 import {calculateScore} from "../controller/helper/scoreCalculator";
+import {Legend} from "./legend";
+import axios from 'axios';
 
 const emptyLetter = {
     letter: null,
@@ -47,14 +49,25 @@ export class Game extends React.Component {
         round: 1,
         //a list of possible locations where a letter can be placed. Is saved as state to avoid recalculating again
         possibleLocations: [112],
-        score: 0
+        score: 0,
+    };
+
+    loadGame = async () => {
+        const response = await axios.post('/getSavedGame', {username: this.props.username, gameName: this.props.gameName});
+        this.setState(response.data)
     };
 
     componentDidMount() {
-        fetch('/game')
-            .then(res => res.json())
-            .then(initialState => {
-                this.setState( initialState)})
+        if(this.props.loadGame) {
+            this.loadGame();
+        } else {
+            fetch('/createGame')
+                .then(res => res.json())
+                .then(initialState => {
+                    this.setState( initialState)})
+        }
+
+
     }
 
     //handles save and exit button click
@@ -214,6 +227,11 @@ export class Game extends React.Component {
         });
 
         if (allLettersUsed === 7) {
+            this.props.handleModalAlert({
+                modalHeader: "Congratulations, you're done!",
+                modalAlertMessage: "You got a score of " + this.state.score,
+                modalButtonValue: 'OK'
+            });
             alert("Congratulations! You finished the game with a score of " + this.state.score);
             this.handleEndGame();
         }
@@ -231,7 +249,7 @@ export class Game extends React.Component {
         //create local variables needed for updating state variables
         const newLetters = placedLetters.filter(letter => letter.roundPlaced === round);
         const newRound = round + 1;
-        let newScore;
+        let scoreInfo;
 
         try{
             //values is a json with {possibleLocationsUpdate, newWords, validWords}
@@ -239,17 +257,31 @@ export class Game extends React.Component {
             if (!values.validWords) {
                 throw String ("One of the words you placed is not a valid word");
             }
-            newScore = await calculateScore(values.newWords, score);
+            scoreInfo = await calculateScore(values.newWords, score);
+
+            this.props.handleModalAlert({
+                modalHeader: 'New points added from words played:',
+                modalAlertMessage: 'Score: ' + scoreInfo.oldScore
+                    + " + "
+                    + scoreInfo.wordsScore.join(" + ")
+                    + " = "
+                    + scoreInfo.newScore,
+                modalButtonValue: "Next round"
+            });
             words.push(values.newWords);
             this.setState({
-                score: newScore,
+                score: scoreInfo.newScore,
                 words: words,
                 possibleLocations: values.possibleLocations,
                 round: newRound
             });
             await this.refillPlayerLetters();
         } catch (e) {
-            throw alert(e);
+            this.props.handleModalAlert({
+                modalHeader: 'Hey, you got something wrong here!',
+                modalAlertMessage: e,
+                modalButtonValue: 'OK'
+            });
         }
     };
 

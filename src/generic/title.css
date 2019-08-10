@@ -1,0 +1,21 @@
+/*Start of row 1 - column 2: title section*/
+.titleBox {
+    height: 120px;
+    padding-top: 3%;
+}
+
+.title {
+    font-size: 72px;
+    text-align: center;
+    color: #52A793;
+}
+
+.titleLine {
+    border-style: solid;
+    border-color: #9D322F;
+    width: 200px;
+    height: 2px;
+    background-color: #9D322F;
+    border-radius: 5px;
+}
+/*End of row 1 - column 2: title section*/

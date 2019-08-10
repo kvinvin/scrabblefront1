@@ -1,5 +1,5 @@
 import React from 'react'
-import './gameButtons.css'
+import '../css/gameButtons.css'
 
 export class SaveAndExit extends React.Component {
     render() {

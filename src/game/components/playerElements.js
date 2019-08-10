@@ -42,15 +42,13 @@ export class PlayerLetters extends React.Component {
     }
 }
 
-export class PlayerInfo extends React.Component {
-    render() {
-        return (
-            <div className="rectangle">
-                <div className="innerRectangle">
-                    <div className="textStyle" style={{top: "5px"}}>{this.props.username}</div>
-                    <div className="textStyle" style={{top: "8px"}}>{this.props.score}</div>
-                </div>
+export const PlayerInfo = (props) => {
+    return (
+        <div className="rectangle">
+            <div className="innerRectangle">
+                <div className="textStyle" style={{top: "5px"}}>{props.username}</div>
+                <div className="textStyle" style={{top: "8px"}}>{props.score}</div>
             </div>
-        )
-    }
-}
+        </div>
+    )
+};
