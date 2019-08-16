@@ -1,13 +1,21 @@
-import React from 'react'
-import '../css/gameIndex.css'
+//libraries
+import React from 'react';
+import axios from 'axios/index';
+
+//CSS
+import '../css/gameIndex.css';
+
+//Components
 import {GiveUp, SaveAndExit, Submit} from './gameButtons.js'
 import {Title} from '../../generic/title.js';
 import {Board} from './gameBoard.js';
 import {PlayerInfo, PlayerLetters} from './playerElements';
-import {validateAllRequirements} from "../controller/handleSubmitClick";
-import {calculateScore} from "../controller/helper/scoreCalculator";
 import {Legend} from "./legend";
-import axios from 'axios';
+
+//Helper Functions
+import {validateAllRequirements} from "../controller/handleValidation";
+import {calculateScore} from "../controller/helper/scoreCalculator";
+
 
 const emptyLetter = {
     letter: null,
@@ -47,11 +55,12 @@ export class Game extends React.Component {
         },
         words: [],
         round: 1,
-        //a list of possible locations where a letter can be placed. Is saved as state to avoid recalculating again
+        //a list of possible locations where a letter can be placed is saved as state to avoid recalculating again
         possibleLocations: [112],
         score: 0,
     };
 
+    /////////////////////////////// GAME SETUP ///////////////////////////////////////
     loadGame = async () => {
         const response = await axios.post('/getSavedGame', {username: this.props.username, gameName: this.props.gameName});
         this.setState(response.data)
@@ -70,6 +79,7 @@ export class Game extends React.Component {
 
     }
 
+    /////////////////////////////// ADMINISTRATIVE FUNCTIONS /////////////////////////
     //handles save and exit button click
     handleSaveAndExit = () => {
         this.props.handleSaveAndExit(this.state);
@@ -80,6 +90,7 @@ export class Game extends React.Component {
         this.props.handleEndGame(this.state.score)
     };
 
+    //////////////////////////////// LETTER FUNCTIONALITY ////////////////////////////
     //updates selectedLetter to the new selected letter
     changeSelectedLetter = (newLetter) => {
         this.setState({selectedLetter: newLetter});
@@ -204,6 +215,7 @@ export class Game extends React.Component {
         this.changeSelectedLetter(emptyLetter);
     };
 
+    ////////////////////////////////// REFILL LETTERS FROM RESERVE ///////////////////////
     async refillPlayerLetters(){
         let reserveLetters = this.state.reserveLetters;
         const oldPlayerLetters = this.state.playerLetters;
@@ -237,6 +249,7 @@ export class Game extends React.Component {
         }
     }
 
+    ////////////////////////////////// HANDLING OF END OF ROUND //////////////////////////
     //makes sure that the letters placed fit all the right requirements before moving on to the next round
     handleSubmitClick = async () => {
         //save initial values of state
@@ -260,7 +273,7 @@ export class Game extends React.Component {
             scoreInfo = await calculateScore(values.newWords, score);
 
             this.props.handleModalAlert({
-                modalHeader: 'New points added from words played:',
+                modalHeader: 'New points added from word(s) played:',
                 modalAlertMessage: 'Score: ' + scoreInfo.oldScore
                     + " + "
                     + scoreInfo.wordsScore.join(" + ")
@@ -317,45 +330,3 @@ export class Game extends React.Component {
         )
     }
 }
-
-
-/*
-* TODO:
-*   1. LOGIC
-    *       a. add constrictions on finish button
-    *           - words formed need to be proper words
-    *               1. extract words DONE
-    *               2. analyze words
-    *       c. detect (after submit is pressed) when no more letters are present in player letters and reserve letters and show
-    *           - the score DONE
-    *           - its placement in the high score list
-    *           - BUTTON: return to home
-    *           - BUTTON: play again
-*   2. DESIGN
-    *       a. give letters that are placed but not submitted yet a grey tone to show that they can still be moved
-    *       b. add conditional that letters from previous rounds do not scale while mouseOver
-*   3. ERRORS
-*
-*
-* TODO DONE:
-*   1. move letter from board to player dock (only if it was placed in the same round)
-*   2. move placedLetter state to Game component
-*   3. add constrictions on finish button
-*       a. starting letter of round 1 needs to be in middle tile
-*       b. are any letters placed on board
-*       c. are letters placed in a straight line
-*       d. every rounds words need to be in contact with main placedLetters graph
-*   4. a letter placed in a previous round cannot be selected
-*   5. calculate score formed out of new words
-*   6. increment scoreboard with new score
-*   7. complete legend info table
-*   8. when a new round is started, replace empty player letter slots with new letters from reserve
-*   9. if round 1, you need to place at least 2 letters
-*   10. add alert showing how new score is calculated
-*   11. generate a list of shuffled letters from letterData and save it in state
-*
-* TODO ERRORS DONE:
-*   1. error when placing only 1 letter at the start of the game
-*   2. error when no more reserves are present to replace the played letters
-*   3. promises take time to finish, error with non-connected letters: letters refill
-* */

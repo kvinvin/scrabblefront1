@@ -1,13 +1,18 @@
+//libraries
 import React from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 
+//CSS
 import './index.css';
 import './generic/infoBox.css';
+
+//Components
 import {Game} from './game/components/gameIndex.js';
 import {HomePage} from './homePage/homePageIndex.js';
 import {AlertModal} from './generic/alertModal';
 
-const axios = require('axios');
+
 
 
 

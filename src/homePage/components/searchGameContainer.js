@@ -1,12 +1,14 @@
 import React from 'react';
 import axios from 'axios';
 import {FoundGameButton} from './foundGameButton'
+import {SearchForm} from "./searchGameForm";
 
-export class SearchGame extends React.Component {
+export class SearchGameContainer extends React.Component {
     state = {
         username: '',
         gameNames: []
     };
+
     handleSearchGame = async (event) => {
         //prevents the form from refreshing the page
         event.preventDefault();
@@ -75,17 +77,10 @@ export class SearchGame extends React.Component {
             )});
         return (
             <div className="searchGame">
-                <form onSubmit = {this.handleSearchGame}>
-                    <div className="autocomplete">
-                        <input id="userInput"
-                               type="text"
-                               name="savedGames"
-                               placeholder="Search saved games by user"
-                               onChange = {this.handleQueryChange}
-                        />
-                    </div>
-                    <input type="submit" value="SEARCH"/>
-                </form>
+                <SearchForm
+                    handleSearchGame = {this.handleSearchGame}
+                    handleQueryChange = {this.handleQueryChange}
+                />
                 {foundGameList}
             </div>
         )

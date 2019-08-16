@@ -2,21 +2,19 @@ import React from 'react';
 import './homePageIndex.css';
 import '../generic/title.css';
 import './css/searchGame.css';
-import {SearchGame} from "./components/searchGame";
+import {SearchGameContainer} from "./components/searchGameContainer";
 import {NewGameForm} from "./components/newGameForm";
 import {BestPlayersList} from "./components/bestPlayersList";
+import {Title} from "../generic/title";
 
 //HomePage renders the homepage. This is an example of a stateless functional presentational component
 export const HomePage = (props) => {
     return (
         <div className = "homePage">
             <div/>
-            <div className="titleBox">
-                <div className="title">SCRABBLE</div>
-                <hr className="titleLine"/>
-            </div>
+            <Title gameName = "SCRABBLE"/>
             <div/>
-            <SearchGame
+            <SearchGameContainer
                 handleModalAlert = {props.handleModalAlert}
                 getFullGame = {props.getFullGame}
                 handleUsernameChange = {props.handleUsernameChange}
@@ -49,7 +47,7 @@ export class HomePage extends React.Component {
                     <hr className="titleLine"/>
                 </div>
                 <div/>
-                <SearchGame
+                <SearchGameContainer
                     handleModalAlert = {this.props.handleModalAlert}
                     getFullGame = {this.props.getFullGame}
                     handleUsernameChange = {this.props.handleUsernameChange}

@@ -1,6 +1,6 @@
 import React from "react";
 import {IndividualHighscorePlayer} from "./individualHighscorePlayer";
-const axios = require('axios/index');
+import axios from 'axios';
 
 export class BestPlayersList extends React.Component {
     state = {
@@ -38,7 +38,6 @@ export class BestPlayersList extends React.Component {
     };
 
     render() {
-
         let i = 0;
         const players = this.state.topPlayers.map(topPlayer => {
             let color ='';
@@ -53,7 +52,8 @@ export class BestPlayersList extends React.Component {
         });
         return (<div className="legendRectangle">
             <div className="textStyle" style={{top: "8px", height: "55px"}}>Best Players</div>
-            {players}
-        </div>)
+                {players}
+            </div>
+        )
     };
 }
